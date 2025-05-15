@@ -11,6 +11,8 @@ interface UseIssuesReturn {
   currentPage: number;
   selectedLanguages: string[];
   setSelectedLanguages: (languages: string[]) => void;
+  selectedLabels: string[];
+  setSelectedLabels: (labels: string[]) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   fetchIssues: (filters?: SearchFilters) => Promise<void>;
@@ -23,6 +25,7 @@ export function useIssues(): UseIssuesReturn {
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
+  const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
   const fetchIssues = async (filters: SearchFilters = {}) => {
@@ -30,6 +33,7 @@ export function useIssues(): UseIssuesReturn {
       console.log('Fetching issues...', { 
         ...filters, 
         languages: selectedLanguages,
+        labels: selectedLabels,
         searchQuery 
       });
       setLoading(true);
@@ -38,6 +42,7 @@ export function useIssues(): UseIssuesReturn {
       const response = await GitHubService.searchIssues({
         ...filters,
         languages: selectedLanguages.length > 0 ? selectedLanguages : undefined,
+        labels: selectedLabels.length > 0 ? selectedLabels : undefined,
         searchQuery: searchQuery || undefined,
       });
       
@@ -60,10 +65,10 @@ export function useIssues(): UseIssuesReturn {
     }
   };
 
-  // Fetch issues when selected languages or search query changes
+  // Fetch issues when selected languages, labels, or search query changes
   useEffect(() => {
     fetchIssues({ page: 1 });
-  }, [selectedLanguages, searchQuery]);
+  }, [selectedLanguages, selectedLabels, searchQuery]);
 
   return {
     issues,
@@ -73,6 +78,8 @@ export function useIssues(): UseIssuesReturn {
     currentPage,
     selectedLanguages,
     setSelectedLanguages,
+    selectedLabels,
+    setSelectedLabels,
     searchQuery,
     setSearchQuery,
     fetchIssues,

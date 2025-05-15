@@ -20,6 +20,8 @@ import { GitHubService } from '@/lib/github';
 interface FiltersProps {
   onLanguageChange: (languages: string[]) => void;
   selectedLanguages: string[];
+  onLabelChange: (labels: string[]) => void;
+  selectedLabels: string[];
   searchQuery: string;
   onSearchChange: (query: string) => void;
 }
@@ -27,18 +29,23 @@ interface FiltersProps {
 export function Filters({ 
   onLanguageChange, 
   selectedLanguages,
+  onLabelChange,
+  selectedLabels,
   searchQuery,
   onSearchChange,
 }: FiltersProps) {
   const [languages, setLanguages] = useState<string[]>([]);
+  const [labels, setLabels] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     try {
       const popularLanguages = GitHubService.getPopularLanguages();
+      const popularLabels = GitHubService.getPopularLabels();
       setLanguages(popularLanguages);
+      setLabels(popularLabels);
     } catch (error) {
-      console.error('Error loading languages:', error);
+      console.error('Error loading filters:', error);
     } finally {
       setLoading(false);
     }
@@ -49,6 +56,14 @@ export function Filters({
       onLanguageChange([...selectedLanguages, language]);
     } else {
       onLanguageChange(selectedLanguages.filter(lang => lang !== language));
+    }
+  };
+
+  const handleLabelChange = (label: string, checked: boolean) => {
+    if (checked) {
+      onLabelChange([...selectedLabels, label]);
+    } else {
+      onLabelChange(selectedLabels.filter(l => l !== label));
     }
   };
 
@@ -97,16 +112,25 @@ export function Filters({
               <Button variant="outline" className="gap-1">
                 Labels
                 <ChevronDown className="h-4 w-4" />
+                {selectedLabels.length > 0 && (
+                  <span className="ml-1 text-xs bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">
+                    {selectedLabels.length}
+                  </span>
+                )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
               <DropdownMenuLabel>Select Labels</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuCheckboxItem checked>good first issue</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>documentation</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>bug</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>enhancement</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>help wanted</DropdownMenuCheckboxItem>
+              {labels.map((label) => (
+                <DropdownMenuCheckboxItem
+                  key={label}
+                  checked={selectedLabels.includes(label)}
+                  onCheckedChange={(checked) => handleLabelChange(label, checked)}
+                >
+                  {label}
+                </DropdownMenuCheckboxItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
 

@@ -13,6 +13,8 @@ export default function Home() {
     error,
     selectedLanguages,
     setSelectedLanguages,
+    selectedLabels,
+    setSelectedLabels,
     searchQuery,
     setSearchQuery,
   } = useIssues();
@@ -30,6 +32,8 @@ export default function Home() {
         <Filters
           selectedLanguages={selectedLanguages}
           onLanguageChange={setSelectedLanguages}
+          onLabelChange={setSelectedLabels}
+          selectedLabels={selectedLabels}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
         />

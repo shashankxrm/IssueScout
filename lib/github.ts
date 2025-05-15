@@ -41,6 +41,7 @@ export interface GitHubSearchResponse {
 export interface SearchFilters {
   languages?: string[];
   searchQuery?: string;
+  labels?: string[];
   page?: number;
   perPage?: number;
 }
@@ -101,12 +102,36 @@ export class GitHubService {
     return response.json();
   }
 
+  static getPopularLabels(): string[] {
+    return [
+      'good first issue',
+      'documentation',
+      'bug',
+      'enhancement',
+      'help wanted',
+      'beginner-friendly',
+      'first-timers-only',
+      'easy',
+      'low-hanging-fruit',
+      'starter-task'
+    ];
+  }
+
   static async searchIssues(filters: SearchFilters = {}): Promise<GitHubSearchResponse> {
     try {
-      const { languages, searchQuery, page = 1, perPage = 30 } = filters;
+      const { languages, searchQuery, labels, page = 1, perPage = 30 } = filters;
       
       // Build the search query
-      let query = 'is:issue is:open label:"good first issue"';
+      let query = 'is:issue is:open';
+      
+      // Add labels to query
+      if (labels && labels.length > 0) {
+        const labelQuery = labels.map(label => `label:"${label}"`).join(' ');
+        query += ` ${labelQuery}`;
+      } else {
+        // If no labels selected, default to "good first issue"
+        query += ' label:"good first issue"';
+      }
       
       // Add search query if provided
       if (searchQuery) {
@@ -205,6 +230,7 @@ export class GitHubService {
         console.log('Final results:', {
           totalIssues: uniqueIssues.length,
           languages: languages,
+          labels: labels,
           searchQuery
         });
 
