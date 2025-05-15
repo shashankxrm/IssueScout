@@ -53,12 +53,14 @@ export function IssueCard({ issue }: IssueCardProps) {
             <Badge
               key={label.name}
               style={{
-                backgroundColor: `#${label.color}20`,
+                backgroundColor: `#${label.color}15`,
                 color: `#${label.color}`,
-                borderColor: `#${label.color}40`,
+                borderColor: `#${label.color}30`,
+                fontWeight: 500,
+                textShadow: '0 0 1px rgba(255, 255, 255, 0.5)',
               }}
               variant="outline"
-              className="text-xs font-normal"
+              className="text-xs font-medium hover:bg-opacity-20 transition-colors"
             >
               {label.name}
             </Badge>
