@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from 'react';
 import { Search, ChevronDown } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -14,8 +15,28 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
+import { GitHubService } from '@/lib/github';
 
-export function Filters() {
+interface FiltersProps {
+  onLanguageChange: (language: string | null) => void;
+  selectedLanguage: string | null;
+}
+
+export function Filters({ onLanguageChange, selectedLanguage }: FiltersProps) {
+  const [languages, setLanguages] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    try {
+      const popularLanguages = GitHubService.getPopularLanguages();
+      setLanguages(popularLanguages);
+    } catch (error) {
+      console.error('Error loading languages:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4">
@@ -34,12 +55,17 @@ export function Filters() {
             <DropdownMenuContent className="w-56">
               <DropdownMenuLabel>Select Languages</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuCheckboxItem checked>JavaScript</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>TypeScript</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>Python</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>Rust</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>Go</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>Java</DropdownMenuCheckboxItem>
+              {languages.map((language) => (
+                <DropdownMenuCheckboxItem
+                  key={language}
+                  checked={selectedLanguage === language}
+                  onCheckedChange={(checked) => {
+                    onLanguageChange(checked ? language : null);
+                  }}
+                >
+                  {language}
+                </DropdownMenuCheckboxItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { GitHubService, GitHubIssue } from '@/lib/github';
+import { GitHubService, GitHubIssue, SearchFilters } from '@/lib/github';
 
 interface UseIssuesReturn {
   issues: GitHubIssue[];
@@ -9,7 +9,9 @@ interface UseIssuesReturn {
   error: string | null;
   totalCount: number;
   currentPage: number;
-  fetchIssues: (page?: number) => Promise<void>;
+  selectedLanguage: string | null;
+  setSelectedLanguage: (language: string | null) => void;
+  fetchIssues: (filters?: SearchFilters) => Promise<void>;
 }
 
 export function useIssues(): UseIssuesReturn {
@@ -18,14 +20,20 @@ export function useIssues(): UseIssuesReturn {
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
 
-  const fetchIssues = async (page: number = 1) => {
+  const fetchIssues = async (filters: SearchFilters = {}) => {
     try {
-      console.log('Fetching issues...'); // Debug log
+      console.log('Fetching issues...', { ...filters, language: selectedLanguage });
       setLoading(true);
       setError(null);
-      const response = await GitHubService.searchIssues(page);
-      console.log('API Response:', response); // Debug log
+      
+      const response = await GitHubService.searchIssues({
+        ...filters,
+        language: selectedLanguage || undefined,
+      });
+      
+      console.log('API Response:', response);
       
       if (!response.items) {
         console.error('No items in response:', response);
@@ -34,20 +42,20 @@ export function useIssues(): UseIssuesReturn {
 
       setIssues(response.items);
       setTotalCount(response.total_count);
-      setCurrentPage(page);
-      console.log('Issues set:', response.items); // Debug log
+      setCurrentPage(filters.page || 1);
+      console.log('Issues set:', response.items);
     } catch (err) {
-      console.error('Error in fetchIssues:', err); // Debug log
+      console.error('Error in fetchIssues:', err);
       setError(err instanceof Error ? err.message : 'An error occurred while fetching issues');
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch issues when language changes
   useEffect(() => {
-    console.log('useEffect triggered'); // Debug log
-    fetchIssues();
-  }, []);
+    fetchIssues({ page: 1 });
+  }, [selectedLanguage]);
 
   return {
     issues,
@@ -55,6 +63,8 @@ export function useIssues(): UseIssuesReturn {
     error,
     totalCount,
     currentPage,
+    selectedLanguage,
+    setSelectedLanguage,
     fetchIssues,
   };
 } 

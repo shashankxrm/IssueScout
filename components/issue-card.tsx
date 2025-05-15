@@ -90,7 +90,7 @@ export function IssueCard({ issue }: IssueCardProps) {
           <Button variant="ghost" size="icon" className="h-8 w-8">
             <BookmarkIcon className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" className="h-8 gap-1">
+          <Button variant="outline" size="sm" className="h-8 gap-1" onClick={() => window.open(`https://github.com/${issue.repo}/issues/${issue.number}`, '_blank')}>
             <ExternalLink className="h-3.5 w-3.5" />
             <span className="text-xs">View</span>
           </Button>

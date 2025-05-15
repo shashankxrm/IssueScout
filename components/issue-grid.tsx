@@ -1,12 +1,16 @@
 'use client';
 
 import { IssueCard } from "@/components/issue-card"
-import { useIssues } from "@/hooks/useIssues"
 import { Skeleton } from "@/components/ui/skeleton"
+import { GitHubIssue } from "@/lib/github"
 
-export function IssueGrid() {
-  const { issues, loading, error } = useIssues();
+interface IssueGridProps {
+  issues: GitHubIssue[];
+  loading: boolean;
+  error: string | null;
+}
 
+export function IssueGrid({ issues, loading, error }: IssueGridProps) {
   console.log('IssueGrid render:', { issues, loading, error });
 
   if (error) {

@@ -38,6 +38,12 @@ export interface GitHubSearchResponse {
   items: GitHubIssue[];
 }
 
+export interface SearchFilters {
+  language?: string;
+  page?: number;
+  perPage?: number;
+}
+
 export class GitHubService {
   private static getHeaders() {
     const token = process.env.GITHUB_TOKEN;
@@ -94,10 +100,16 @@ export class GitHubService {
     return response.json();
   }
 
-  static async searchIssues(page: number = 1, perPage: number = 30): Promise<GitHubSearchResponse> {
+  static async searchIssues(filters: SearchFilters = {}): Promise<GitHubSearchResponse> {
     try {
-      // Search for open issues with "good first issue" label
-      const query = 'is:issue is:open label:"good first issue"';
+      const { language, page = 1, perPage = 30 } = filters;
+      
+      // Build the search query
+      let query = 'is:issue is:open label:"good first issue"';
+      if (language) {
+        query += ` language:${language}`;
+      }
+
       const response = await fetch(
         `${GITHUB_API_URL}/search/issues?q=${encodeURIComponent(query)}&page=${page}&per_page=${perPage}&sort=created&order=desc`,
         {
@@ -148,5 +160,26 @@ export class GitHubService {
       console.error('GitHub API Error:', error);
       throw error;
     }
+  }
+
+  static getPopularLanguages(): string[] {
+    // For now, return a static list of popular languages
+    return [
+      'JavaScript',
+      'TypeScript',
+      'Python',
+      'Java',
+      'C++',
+      'Go',
+      'Rust',
+      'Ruby',
+      'PHP',
+      'C#',
+      'Swift',
+      'Kotlin',
+      'Dart',
+      'R',
+      'Scala'
+    ];
   }
 } 

@@ -1,11 +1,19 @@
+'use client';
+
 import { Filters } from "@/components/filters"
 import { IssueGrid } from "@/components/issue-grid"
 import { EmptyState } from "@/components/empty-state"
 import { Pagination } from "@/components/pagination"
+import { useIssues } from '@/hooks/useIssues';
 
 export default function Home() {
-  // This is just a placeholder for demonstration
-  const hasIssues = true
+  const {
+    issues,
+    loading,
+    error,
+    selectedLanguage,
+    setSelectedLanguage,
+  } = useIssues();
 
   return (
     <div className="container py-8 max-w-7xl mx-auto px-4">
@@ -17,11 +25,14 @@ export default function Home() {
           </p>
         </div>
 
-        <Filters />
+        <Filters
+          selectedLanguage={selectedLanguage}
+          onLanguageChange={setSelectedLanguage}
+        />
 
-        {hasIssues ? (
+        {issues.length > 0 ? (
           <>
-            <IssueGrid />
+            <IssueGrid issues={issues} loading={loading} error={error} />
             <Pagination />
           </>
         ) : (
