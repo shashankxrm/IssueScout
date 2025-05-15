@@ -17,6 +17,13 @@ export default function Home() {
     setSelectedLabels,
     searchQuery,
     setSearchQuery,
+    sort,
+    setSort,
+    order,
+    setOrder,
+    currentPage,
+    totalPages,
+    handlePageChange,
   } = useIssues();
 
   return (
@@ -36,12 +43,20 @@ export default function Home() {
           selectedLabels={selectedLabels}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
+          sort={sort}
+          onSortChange={setSort}
+          order={order}
+          onOrderChange={setOrder}
         />
 
         {issues.length > 0 ? (
           <>
             <IssueGrid issues={issues} loading={loading} error={error} />
-            <Pagination />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           </>
         ) : (
           <EmptyState />

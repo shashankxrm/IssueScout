@@ -24,6 +24,10 @@ interface FiltersProps {
   selectedLabels: string[];
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  sort: 'created' | 'updated' | 'comments';
+  onSortChange: (sort: 'created' | 'updated' | 'comments') => void;
+  order: 'asc' | 'desc';
+  onOrderChange: (order: 'asc' | 'desc') => void;
 }
 
 export function Filters({ 
@@ -33,6 +37,10 @@ export function Filters({
   selectedLabels,
   searchQuery,
   onSearchChange,
+  sort,
+  onSortChange,
+  order,
+  onOrderChange,
 }: FiltersProps) {
   const [languages, setLanguages] = useState<string[]>([]);
   const [labels, setLabels] = useState<string[]>([]);
@@ -64,6 +72,17 @@ export function Filters({
       onLabelChange([...selectedLabels, label]);
     } else {
       onLabelChange(selectedLabels.filter(l => l !== label));
+    }
+  };
+
+  const handleSortChange = (newSort: 'created' | 'updated' | 'comments') => {
+    if (newSort === sort) {
+      // Toggle order if clicking the same sort option
+      onOrderChange(order === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new sort and default to descending order
+      onSortChange(newSort);
+      onOrderChange('desc');
     }
   };
 
@@ -144,12 +163,42 @@ export function Filters({
             <DropdownMenuContent className="w-56">
               <DropdownMenuLabel>Sort By</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuCheckboxItem checked>Newest</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>Oldest</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>Most commented</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>Least commented</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>Recently updated</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>Least recently updated</DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem 
+                checked={sort === 'created'} 
+                onCheckedChange={() => handleSortChange('created')}
+              >
+                Newest
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem 
+                checked={sort === 'created' && order === 'asc'} 
+                onCheckedChange={() => handleSortChange('created')}
+              >
+                Oldest
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem 
+                checked={sort === 'comments'} 
+                onCheckedChange={() => handleSortChange('comments')}
+              >
+                Most commented
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem 
+                checked={sort === 'comments' && order === 'asc'} 
+                onCheckedChange={() => handleSortChange('comments')}
+              >
+                Least commented
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem 
+                checked={sort === 'updated'} 
+                onCheckedChange={() => handleSortChange('updated')}
+              >
+                Recently updated
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem 
+                checked={sort === 'updated' && order === 'asc'} 
+                onCheckedChange={() => handleSortChange('updated')}
+              >
+                Least recently updated
+              </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

@@ -44,6 +44,8 @@ export interface SearchFilters {
   labels?: string[];
   page?: number;
   perPage?: number;
+  sort?: 'created' | 'updated' | 'comments';
+  order?: 'asc' | 'desc';
 }
 
 export class GitHubService {
@@ -119,7 +121,15 @@ export class GitHubService {
 
   static async searchIssues(filters: SearchFilters = {}): Promise<GitHubSearchResponse> {
     try {
-      const { languages, searchQuery, labels, page = 1, perPage = 30 } = filters;
+      const { 
+        languages, 
+        searchQuery, 
+        labels, 
+        page = 1, 
+        perPage = 30,
+        sort = 'created',
+        order = 'desc'
+      } = filters;
       
       // Build the search query
       let query = 'is:issue is:open';
@@ -151,7 +161,7 @@ export class GitHubService {
           console.log('Searching with query:', languageQuery); // Debug log
 
           const response = await fetch(
-            `${GITHUB_API_URL}/search/issues?q=${encodeURIComponent(languageQuery)}&page=${page}&per_page=${perPage}&sort=created&order=desc`,
+            `${GITHUB_API_URL}/search/issues?q=${encodeURIComponent(languageQuery)}&page=${page}&per_page=${perPage}&sort=${sort}&order=${order}`,
             {
               headers: this.getHeaders(),
             }
@@ -222,16 +232,27 @@ export class GitHubService {
           new Map(allIssues.map(issue => [issue.id, issue])).values()
         );
 
-        // Sort by creation date
-        uniqueIssues.sort((a, b) => 
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
+        // Sort the combined results based on the sort parameter
+        uniqueIssues.sort((a, b) => {
+          const aValue = sort === 'created' ? new Date(a.created_at) :
+                        sort === 'updated' ? new Date(a.updated_at) :
+                        a.comments;
+          const bValue = sort === 'created' ? new Date(b.created_at) :
+                        sort === 'updated' ? new Date(b.updated_at) :
+                        b.comments;
+          
+          return order === 'asc' ? 
+            aValue > bValue ? 1 : -1 :
+            aValue < bValue ? 1 : -1;
+        });
 
         console.log('Final results:', {
           totalIssues: uniqueIssues.length,
           languages: languages,
           labels: labels,
-          searchQuery
+          searchQuery,
+          sort,
+          order
         });
 
         return {
@@ -243,7 +264,7 @@ export class GitHubService {
 
       // If no languages selected, use the original query
       const response = await fetch(
-        `${GITHUB_API_URL}/search/issues?q=${encodeURIComponent(query)}&page=${page}&per_page=${perPage}&sort=created&order=desc`,
+        `${GITHUB_API_URL}/search/issues?q=${encodeURIComponent(query)}&page=${page}&per_page=${perPage}&sort=${sort}&order=${order}`,
         {
           headers: this.getHeaders(),
         }
