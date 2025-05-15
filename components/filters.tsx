@@ -28,6 +28,8 @@ interface FiltersProps {
   onSortChange: (sort: 'created' | 'updated' | 'comments') => void;
   order: 'asc' | 'desc';
   onOrderChange: (order: 'asc' | 'desc') => void;
+  minStars: number;
+  onMinStarsChange: (stars: number) => void;
 }
 
 export function Filters({ 
@@ -41,6 +43,8 @@ export function Filters({
   onSortChange,
   order,
   onOrderChange,
+  minStars,
+  onMinStarsChange,
 }: FiltersProps) {
   const [languages, setLanguages] = useState<string[]>([]);
   const [labels, setLabels] = useState<string[]>([]);
@@ -213,9 +217,15 @@ export function Filters({
         <div className="flex-1 space-y-1 md:max-w-md max-w-full w-64">
           <div className="flex justify-between">
             <Label>Repository Stars</Label>
-            <span className="text-sm text-muted-foreground">1000+</span>
+            <span className="text-sm text-muted-foreground">{minStars > 0 ? `${minStars}+` : 'Any'}</span>
           </div>
-          <Slider defaultValue={[50]} max={100} step={1} />
+          <Slider 
+            defaultValue={[0]} 
+            max={1000} 
+            step={100} 
+            value={[minStars]}
+            onValueChange={([value]) => onMinStarsChange(value)}
+          />
         </div>
       </div>
     </div>

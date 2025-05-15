@@ -46,6 +46,7 @@ export interface SearchFilters {
   perPage?: number;
   sort?: 'created' | 'updated' | 'comments';
   order?: 'asc' | 'desc';
+  minStars?: number;
 }
 
 export class GitHubService {
@@ -128,7 +129,8 @@ export class GitHubService {
         page = 1, 
         perPage = 30,
         sort = 'created',
-        order = 'desc'
+        order = 'desc',
+        minStars
       } = filters;
       
       // Build the search query
@@ -146,6 +148,11 @@ export class GitHubService {
       // Add search query if provided
       if (searchQuery) {
         query += ` ${searchQuery}`;
+      }
+
+      // Add stars filter if provided
+      if (minStars) {
+        query += ` stars:>=${minStars}`;
       }
 
       if (languages && languages.length > 0) {
@@ -255,10 +262,15 @@ export class GitHubService {
           order
         });
 
+        // Filter issues by stars if minStars is set
+        const filteredIssues = minStars 
+          ? uniqueIssues.filter(issue => (issue.repository?.stargazers_count ?? 0) >= minStars)
+          : uniqueIssues;
+
         return {
           total_count: totalCount,
           incomplete_results: false,
-          items: uniqueIssues
+          items: filteredIssues
         };
       }
 
@@ -305,9 +317,14 @@ export class GitHubService {
         })
       );
 
+      // Filter issues by stars if minStars is set
+      const filteredIssues = minStars 
+        ? issuesWithRepos.filter(issue => (issue.repository?.stargazers_count ?? 0) >= minStars)
+        : issuesWithRepos;
+
       return {
         ...data,
-        items: issuesWithRepos
+        items: filteredIssues
       };
     } catch (error) {
       console.error('GitHub API Error:', error);

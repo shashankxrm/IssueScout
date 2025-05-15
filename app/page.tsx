@@ -21,6 +21,8 @@ export default function Home() {
     setSort,
     order,
     setOrder,
+    minStars,
+    setMinStars,
     currentPage,
     totalPages,
     handlePageChange,
@@ -47,6 +49,8 @@ export default function Home() {
           onSortChange={setSort}
           order={order}
           onOrderChange={setOrder}
+          minStars={minStars}
+          onMinStarsChange={setMinStars}
         />
 
         {issues.length > 0 ? (
