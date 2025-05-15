@@ -1,3 +1,5 @@
+'use client';
+
 import { formatDistanceToNow } from "date-fns"
 import { Star, MessageSquare, Github, ExternalLink, BookmarkIcon } from "lucide-react"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
