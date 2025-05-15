@@ -40,6 +40,7 @@ export interface GitHubSearchResponse {
 
 export interface SearchFilters {
   languages?: string[];
+  searchQuery?: string;
   page?: number;
   perPage?: number;
 }
@@ -102,10 +103,16 @@ export class GitHubService {
 
   static async searchIssues(filters: SearchFilters = {}): Promise<GitHubSearchResponse> {
     try {
-      const { languages, page = 1, perPage = 30 } = filters;
+      const { languages, searchQuery, page = 1, perPage = 30 } = filters;
       
       // Build the search query
       let query = 'is:issue is:open label:"good first issue"';
+      
+      // Add search query if provided
+      if (searchQuery) {
+        query += ` ${searchQuery}`;
+      }
+
       if (languages && languages.length > 0) {
         // For multiple languages, we'll use a different approach
         // Instead of using OR, we'll make separate requests for each language
@@ -197,7 +204,8 @@ export class GitHubService {
 
         console.log('Final results:', {
           totalIssues: uniqueIssues.length,
-          languages: languages
+          languages: languages,
+          searchQuery
         });
 
         return {

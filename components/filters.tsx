@@ -20,9 +20,16 @@ import { GitHubService } from '@/lib/github';
 interface FiltersProps {
   onLanguageChange: (languages: string[]) => void;
   selectedLanguages: string[];
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
 }
 
-export function Filters({ onLanguageChange, selectedLanguages }: FiltersProps) {
+export function Filters({ 
+  onLanguageChange, 
+  selectedLanguages,
+  searchQuery,
+  onSearchChange,
+}: FiltersProps) {
   const [languages, setLanguages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -50,7 +57,12 @@ export function Filters({ onLanguageChange, selectedLanguages }: FiltersProps) {
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search repositories or issues..." className="pl-9" />
+          <Input 
+            placeholder="Search repositories or issues..." 
+            className="pl-9"
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+          />
         </div>
         <div className="flex flex-wrap gap-2">
           <DropdownMenu>

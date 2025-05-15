@@ -13,6 +13,8 @@ export default function Home() {
     error,
     selectedLanguages,
     setSelectedLanguages,
+    searchQuery,
+    setSearchQuery,
   } = useIssues();
 
   return (
@@ -28,6 +30,8 @@ export default function Home() {
         <Filters
           selectedLanguages={selectedLanguages}
           onLanguageChange={setSelectedLanguages}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
         />
 
         {issues.length > 0 ? (
