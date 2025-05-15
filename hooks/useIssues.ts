@@ -22,6 +22,8 @@ interface UseIssuesReturn {
   setOrder: (order: 'asc' | 'desc') => void;
   minStars: number;
   setMinStars: (stars: number) => void;
+  noAssignee: boolean;
+  setNoAssignee: (value: boolean) => void;
   fetchIssues: (filters?: SearchFilters) => Promise<void>;
   handlePageChange: (page: number) => void;
 }
@@ -38,6 +40,7 @@ export function useIssues(): UseIssuesReturn {
   const [sort, setSort] = useState<'created' | 'updated' | 'comments'>('created');
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
   const [minStars, setMinStars] = useState(0);
+  const [noAssignee, setNoAssignee] = useState(false);
 
   const ITEMS_PER_PAGE = 15;
   const MAX_TOTAL_RESULTS = 500;
@@ -54,6 +57,7 @@ export function useIssues(): UseIssuesReturn {
         sort,
         order,
         minStars,
+        noAssignee,
         page: filters.page || currentPage
       });
       setLoading(true);
@@ -67,6 +71,7 @@ export function useIssues(): UseIssuesReturn {
         sort,
         order,
         minStars: minStars > 0 ? minStars : undefined,
+        noAssignee: noAssignee ? true : undefined,
         page: filters.page || currentPage,
         perPage: ITEMS_PER_PAGE,
       });
@@ -95,10 +100,10 @@ export function useIssues(): UseIssuesReturn {
     fetchIssues({ page });
   };
 
-  // Fetch issues when selected languages, labels, search query, sort, order, or minStars changes
+  // Fetch issues when selected languages, labels, search query, sort, order, minStars, or noAssignee changes
   useEffect(() => {
     fetchIssues({ page: 1 });
-  }, [selectedLanguages, selectedLabels, searchQuery, sort, order, minStars]);
+  }, [selectedLanguages, selectedLabels, searchQuery, sort, order, minStars, noAssignee]);
 
   return {
     issues,
@@ -119,6 +124,8 @@ export function useIssues(): UseIssuesReturn {
     setOrder,
     minStars,
     setMinStars,
+    noAssignee,
+    setNoAssignee,
     fetchIssues,
     handlePageChange,
   };

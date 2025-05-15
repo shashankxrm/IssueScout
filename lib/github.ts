@@ -47,6 +47,7 @@ export interface SearchFilters {
   sort?: 'created' | 'updated' | 'comments';
   order?: 'asc' | 'desc';
   minStars?: number;
+  noAssignee?: boolean;
 }
 
 export class GitHubService {
@@ -130,7 +131,8 @@ export class GitHubService {
         perPage = 30,
         sort = 'created',
         order = 'desc',
-        minStars
+        minStars,
+        noAssignee
       } = filters;
       
       // Build the search query
@@ -153,6 +155,11 @@ export class GitHubService {
       // Add stars filter if provided
       if (minStars) {
         query += ` stars:>=${minStars}`;
+      }
+
+      // Add no assignee filter if provided
+      if (noAssignee) {
+        query += ' no:assignee';
       }
 
       if (languages && languages.length > 0) {

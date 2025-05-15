@@ -23,6 +23,8 @@ export default function Home() {
     setOrder,
     minStars,
     setMinStars,
+    noAssignee,
+    setNoAssignee,
     currentPage,
     totalPages,
     handlePageChange,
@@ -51,6 +53,8 @@ export default function Home() {
           onOrderChange={setOrder}
           minStars={minStars}
           onMinStarsChange={setMinStars}
+          noAssignee={noAssignee}
+          onNoAssigneeChange={setNoAssignee}
         />
 
         {issues.length > 0 ? (

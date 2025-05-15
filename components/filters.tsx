@@ -30,6 +30,8 @@ interface FiltersProps {
   onOrderChange: (order: 'asc' | 'desc') => void;
   minStars: number;
   onMinStarsChange: (stars: number) => void;
+  noAssignee: boolean;
+  onNoAssigneeChange: (value: boolean) => void;
 }
 
 export function Filters({ 
@@ -45,6 +47,8 @@ export function Filters({
   onOrderChange,
   minStars,
   onMinStarsChange,
+  noAssignee,
+  onNoAssigneeChange,
 }: FiltersProps) {
   const [languages, setLanguages] = useState<string[]>([]);
   const [labels, setLabels] = useState<string[]>([]);
@@ -210,7 +214,11 @@ export function Filters({
 
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-center md:items-start md:justify-between mx-2">
         <div className="flex items-center space-x-2">
-          <Checkbox id="unassigned" />
+          <Checkbox 
+            id="unassigned" 
+            checked={noAssignee}
+            onCheckedChange={(checked) => onNoAssigneeChange(checked as boolean)}
+          />
           <Label htmlFor="unassigned">Only issues without assignee</Label>
         </div>
 
