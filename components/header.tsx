@@ -33,10 +33,10 @@ export default function Header() {
         </Link>
         <div className="flex items-center gap-4">
           <ModeToggle />
-          <Button variant="outline" size="sm" className="gap-1">
+          {/* <Button variant="outline" size="sm" className="gap-1">
             <Github className="h-4 w-4" />
             <span>Sign in</span>
-          </Button>
+          </Button> */}
         </div>
       </div>
     </header>
