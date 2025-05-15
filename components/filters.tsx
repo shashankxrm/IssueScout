@@ -18,11 +18,11 @@ import { Slider } from "@/components/ui/slider"
 import { GitHubService } from '@/lib/github';
 
 interface FiltersProps {
-  onLanguageChange: (language: string | null) => void;
-  selectedLanguage: string | null;
+  onLanguageChange: (languages: string[]) => void;
+  selectedLanguages: string[];
 }
 
-export function Filters({ onLanguageChange, selectedLanguage }: FiltersProps) {
+export function Filters({ onLanguageChange, selectedLanguages }: FiltersProps) {
   const [languages, setLanguages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,6 +37,14 @@ export function Filters({ onLanguageChange, selectedLanguage }: FiltersProps) {
     }
   }, []);
 
+  const handleLanguageChange = (language: string, checked: boolean) => {
+    if (checked) {
+      onLanguageChange([...selectedLanguages, language]);
+    } else {
+      onLanguageChange(selectedLanguages.filter(lang => lang !== language));
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4">
@@ -50,6 +58,11 @@ export function Filters({ onLanguageChange, selectedLanguage }: FiltersProps) {
               <Button variant="outline" className="gap-1">
                 Language
                 <ChevronDown className="h-4 w-4" />
+                {selectedLanguages.length > 0 && (
+                  <span className="ml-1 text-xs bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">
+                    {selectedLanguages.length}
+                  </span>
+                )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
@@ -58,10 +71,8 @@ export function Filters({ onLanguageChange, selectedLanguage }: FiltersProps) {
               {languages.map((language) => (
                 <DropdownMenuCheckboxItem
                   key={language}
-                  checked={selectedLanguage === language}
-                  onCheckedChange={(checked) => {
-                    onLanguageChange(checked ? language : null);
-                  }}
+                  checked={selectedLanguages.includes(language)}
+                  onCheckedChange={(checked) => handleLanguageChange(language, checked)}
                 >
                   {language}
                 </DropdownMenuCheckboxItem>

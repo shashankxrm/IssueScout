@@ -11,8 +11,8 @@ export default function Home() {
     issues,
     loading,
     error,
-    selectedLanguage,
-    setSelectedLanguage,
+    selectedLanguages,
+    setSelectedLanguages,
   } = useIssues();
 
   return (
@@ -26,8 +26,8 @@ export default function Home() {
         </div>
 
         <Filters
-          selectedLanguage={selectedLanguage}
-          onLanguageChange={setSelectedLanguage}
+          selectedLanguages={selectedLanguages}
+          onLanguageChange={setSelectedLanguages}
         />
 
         {issues.length > 0 ? (

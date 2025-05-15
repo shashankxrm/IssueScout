@@ -9,8 +9,8 @@ interface UseIssuesReturn {
   error: string | null;
   totalCount: number;
   currentPage: number;
-  selectedLanguage: string | null;
-  setSelectedLanguage: (language: string | null) => void;
+  selectedLanguages: string[];
+  setSelectedLanguages: (languages: string[]) => void;
   fetchIssues: (filters?: SearchFilters) => Promise<void>;
 }
 
@@ -20,17 +20,17 @@ export function useIssues(): UseIssuesReturn {
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
 
   const fetchIssues = async (filters: SearchFilters = {}) => {
     try {
-      console.log('Fetching issues...', { ...filters, language: selectedLanguage });
+      console.log('Fetching issues...', { ...filters, languages: selectedLanguages });
       setLoading(true);
       setError(null);
       
       const response = await GitHubService.searchIssues({
         ...filters,
-        language: selectedLanguage || undefined,
+        languages: selectedLanguages.length > 0 ? selectedLanguages : undefined,
       });
       
       console.log('API Response:', response);
@@ -52,10 +52,10 @@ export function useIssues(): UseIssuesReturn {
     }
   };
 
-  // Fetch issues when language changes
+  // Fetch issues when selected languages change
   useEffect(() => {
     fetchIssues({ page: 1 });
-  }, [selectedLanguage]);
+  }, [selectedLanguages]);
 
   return {
     issues,
@@ -63,8 +63,8 @@ export function useIssues(): UseIssuesReturn {
     error,
     totalCount,
     currentPage,
-    selectedLanguage,
-    setSelectedLanguage,
+    selectedLanguages,
+    setSelectedLanguages,
     fetchIssues,
   };
 } 

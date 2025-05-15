@@ -39,7 +39,7 @@ export interface GitHubSearchResponse {
 }
 
 export interface SearchFilters {
-  language?: string;
+  languages?: string[];
   page?: number;
   perPage?: number;
 }
@@ -102,14 +102,112 @@ export class GitHubService {
 
   static async searchIssues(filters: SearchFilters = {}): Promise<GitHubSearchResponse> {
     try {
-      const { language, page = 1, perPage = 30 } = filters;
+      const { languages, page = 1, perPage = 30 } = filters;
       
       // Build the search query
       let query = 'is:issue is:open label:"good first issue"';
-      if (language) {
-        query += ` language:${language}`;
+      if (languages && languages.length > 0) {
+        // For multiple languages, we'll use a different approach
+        // Instead of using OR, we'll make separate requests for each language
+        // and combine the results
+        const allIssues: GitHubIssue[] = [];
+        let totalCount = 0;
+
+        for (const language of languages) {
+          // Use exact language name in the query
+          const languageQuery = `${query} language:"${language}"`;
+          console.log('Searching with query:', languageQuery); // Debug log
+
+          const response = await fetch(
+            `${GITHUB_API_URL}/search/issues?q=${encodeURIComponent(languageQuery)}&page=${page}&per_page=${perPage}&sort=created&order=desc`,
+            {
+              headers: this.getHeaders(),
+            }
+          );
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            console.error('GitHub API Error:', {
+              status: response.status,
+              message: errorData?.message || response.statusText,
+              query: languageQuery
+            });
+            throw new Error(
+              `GitHub API error (${response.status}): ${errorData?.message || response.statusText}`
+            );
+          }
+
+          const data = await response.json();
+          console.log(`Results for ${language}:`, {
+            count: data.items.length,
+            total: data.total_count,
+            query: languageQuery
+          });
+
+          // Fetch repository details for each issue
+          const issuesWithRepos = await Promise.all(
+            data.items.map(async (issue: GitHubIssue) => {
+              try {
+                const repoDetails = await this.getRepositoryDetails(issue.repository_url);
+                // Verify the repository language matches our search
+                if (repoDetails.language !== language) {
+                  console.log(`Language mismatch for ${issue.repository_url}:`, {
+                    expected: language,
+                    actual: repoDetails.language
+                  });
+                }
+                return {
+                  ...issue,
+                  repository: repoDetails
+                };
+              } catch (error) {
+                console.error(`Failed to fetch repository details for ${issue.repository_url}:`, error);
+                return {
+                  ...issue,
+                  repository: {
+                    name: issue.repository_url.split('/').pop() || 'Unknown',
+                    full_name: issue.repository_url.split('/').slice(-2).join('/'),
+                    html_url: issue.repository_url,
+                    language: 'Unknown',
+                    stargazers_count: 0
+                  }
+                };
+              }
+            })
+          );
+
+          // Filter out issues where the repository language doesn't match
+          const filteredIssues = issuesWithRepos.filter(issue => 
+            issue.repository?.language === language
+          );
+
+          allIssues.push(...filteredIssues);
+          totalCount += filteredIssues.length;
+        }
+
+        // Remove duplicates based on issue ID
+        const uniqueIssues = Array.from(
+          new Map(allIssues.map(issue => [issue.id, issue])).values()
+        );
+
+        // Sort by creation date
+        uniqueIssues.sort((a, b) => 
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+
+        console.log('Final results:', {
+          totalIssues: uniqueIssues.length,
+          languages: languages
+        });
+
+        return {
+          total_count: totalCount,
+          incomplete_results: false,
+          items: uniqueIssues
+        };
       }
 
+      // If no languages selected, use the original query
       const response = await fetch(
         `${GITHUB_API_URL}/search/issues?q=${encodeURIComponent(query)}&page=${page}&per_page=${perPage}&sort=created&order=desc`,
         {
@@ -163,7 +261,7 @@ export class GitHubService {
   }
 
   static getPopularLanguages(): string[] {
-    // For now, return a static list of popular languages
+    // Return exact language names as they appear in GitHub
     return [
       'JavaScript',
       'TypeScript',
