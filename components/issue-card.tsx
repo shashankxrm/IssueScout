@@ -1,10 +1,12 @@
 'use client';
 
 import { formatDistanceToNow } from "date-fns"
-import { Star, MessageSquare, Github, ExternalLink, BookmarkIcon } from "lucide-react"
+import { Star, MessageSquare, Github, ExternalLink, BookmarkIcon, Bookmark } from "lucide-react"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { useBookmarks } from "@/hooks/useBookmarks"
+import { toast } from "sonner"
 
 interface Label {
   name: string
@@ -23,6 +25,7 @@ interface Issue {
   comments: number
   createdAt: string
   lastActivity: string
+  html_url: string
 }
 
 interface IssueCardProps {
@@ -32,6 +35,16 @@ interface IssueCardProps {
 export function IssueCard({ issue }: IssueCardProps) {
   const createdDate = new Date(issue.createdAt)
   const lastActivityDate = new Date(issue.lastActivity)
+  const { isBookmarked, toggleBookmark } = useBookmarks()
+
+  const handleBookmarkClick = () => {
+    toggleBookmark(issue)
+    toast.success(
+      isBookmarked(issue.id) 
+        ? "Bookmark removed" 
+        : "Bookmark saved locally"
+    )
+  }
 
   return (
     <Card className="overflow-hidden transition-all hover:-translate-y-1 hover:shadow-md">
@@ -41,7 +54,7 @@ export function IssueCard({ issue }: IssueCardProps) {
           <span>{issue.repo}</span>
         </div>
         <a
-          href={`https://github.com/${issue.repo}/issues/${issue.number}`}
+          href={issue.html_url}
           target="_blank"
           rel="noopener noreferrer"
           className="text-lg font-semibold hover:underline line-clamp-2"
@@ -68,7 +81,7 @@ export function IssueCard({ issue }: IssueCardProps) {
         </div>
       </CardHeader>
       <CardContent className="p-4 pt-2">
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{issue.description}</p>
+        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{issue.description || "No description provided"}</p>
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-1">
             <span>#{issue.number}</span>
@@ -89,10 +102,24 @@ export function IssueCard({ issue }: IssueCardProps) {
           {issue.language}
         </Badge>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <BookmarkIcon className="h-4 w-4" />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-8 w-8"
+            onClick={handleBookmarkClick}
+          >
+            {isBookmarked(issue.id) ? (
+              <Bookmark className="h-4 w-4 fill-current" />
+            ) : (
+              <BookmarkIcon className="h-4 w-4" />
+            )}
           </Button>
-          <Button variant="outline" size="sm" className="h-8 gap-1" onClick={() => window.open(`https://github.com/${issue.repo}/issues/${issue.number}`, '_blank')}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="h-8 gap-1" 
+            onClick={() => window.open(issue.html_url, '_blank')}
+          >
             <ExternalLink className="h-3.5 w-3.5" />
             <span className="text-xs">View</span>
           </Button>

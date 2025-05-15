@@ -42,26 +42,22 @@ export function IssueGrid({ issues, loading, error }: IssueGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {issues.map((issue) => {
-        if (!issue.repository) {
-          console.warn('Issue missing repository data:', issue);
-          return null;
-        }
-
         const issueData = {
           id: issue.id,
           title: issue.title,
-          repo: issue.repository.full_name,
+          repo: issue.repository?.full_name || issue.repository_url.split('/').slice(-2).join('/'),
           number: issue.number,
           description: issue.body || "No description provided",
-          labels: (issue.labels || []).map(label => ({
+          labels: issue.labels.map(label => ({
             name: label.name,
             color: label.color
           })),
-          language: issue.repository.language || "Unknown",
-          stars: issue.repository.stargazers_count || 0,
-          comments: issue.comments || 0,
+          language: issue.repository?.language || "Unknown",
+          stars: issue.repository?.stargazers_count || 0,
+          comments: issue.comments,
           createdAt: issue.created_at,
-          lastActivity: issue.updated_at
+          lastActivity: issue.updated_at,
+          html_url: issue.html_url
         };
 
         return (
