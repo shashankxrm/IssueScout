@@ -3,9 +3,13 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
-import { Github } from "lucide-react"
+import { Github, LayoutDashboard } from "lucide-react"
+import { usePathname } from "next/navigation"
 
 export default function Header() {
+  const pathname = usePathname()
+  const isDashboard = pathname === "/dashboard"
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -33,10 +37,18 @@ export default function Header() {
         </Link>
         <div className="flex items-center gap-4">
           <ModeToggle />
-          {/* <Button variant="outline" size="sm" className="gap-1">
+          {!isDashboard && (
+            <Link href="/dashboard">
+              <Button variant="outline" size="sm" className="gap-1">
+                <LayoutDashboard className="h-4 w-4" />
+                <span>Dashboard</span>
+              </Button>
+            </Link>
+          )}
+          <Button variant="outline" size="sm" className="gap-1">
             <Github className="h-4 w-4" />
             <span>Sign in</span>
-          </Button> */}
+          </Button>
         </div>
       </div>
     </header>
