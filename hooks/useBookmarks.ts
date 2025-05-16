@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/lib/auth';
 
 interface Label {
   name: string;
@@ -57,6 +58,7 @@ const saveBookmarks = (bookmarks: Issue[]): void => {
 
 export function useBookmarks(): BookmarkState {
   const [bookmarks, setBookmarks] = useState<Issue[]>(getStoredBookmarks());
+  const { isAuthenticated } = useAuth();
 
   // Listen for bookmark changes from other components
   useEffect(() => {

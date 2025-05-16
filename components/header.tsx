@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Github, LayoutDashboard } from "lucide-react"
 import { usePathname } from "next/navigation"
+import { useAuth } from "@/lib/auth"
 
 export default function Header() {
   const pathname = usePathname()
   const isDashboard = pathname === "/dashboard"
+  const { isAuthenticated, login, logout } = useAuth()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -45,9 +47,14 @@ export default function Header() {
               </Button>
             </Link>
           )}
-          <Button variant="outline" size="sm" className="gap-1">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-1"
+            onClick={isAuthenticated ? logout : login}
+          >
             <Github className="h-4 w-4" />
-            <span>Sign in</span>
+            <span>{isAuthenticated ? "Sign out" : "Sign in"}</span>
           </Button>
         </div>
       </div>

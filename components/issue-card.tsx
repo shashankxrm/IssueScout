@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useBookmarks } from "@/hooks/useBookmarks"
+import { useAuth } from "@/lib/auth"
 import { toast } from "sonner"
 
 interface Label {
@@ -36,13 +37,16 @@ export function IssueCard({ issue }: IssueCardProps) {
   const createdDate = new Date(issue.createdAt)
   const lastActivityDate = new Date(issue.lastActivity)
   const { isBookmarked, toggleBookmark } = useBookmarks()
+  const { isAuthenticated } = useAuth()
 
   const handleBookmarkClick = () => {
     toggleBookmark(issue)
     toast.success(
       isBookmarked(issue.id) 
         ? "Bookmark removed" 
-        : "Bookmark saved locally"
+        : isAuthenticated
+          ? "Bookmark saved and synced"
+          : "Bookmark saved locally. Sign in with GitHub to sync across devices!"
     )
   }
 
