@@ -59,7 +59,6 @@ const getStoredBookmarks = (): Issue[] => {
 const saveBookmarks = (bookmarks: Issue[]): void => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(bookmarks));
-    // Dispatch custom event to notify all components
     window.dispatchEvent(new CustomEvent(BOOKMARKS_CHANGED_EVENT, { detail: bookmarks }));
   } catch (error) {
     console.error('Error saving bookmarks to localStorage:', error);
@@ -78,6 +77,7 @@ export function useBookmarks(): BookmarkState {
 
       setIsLoading(true);
       try {
+        // Fetch synced bookmarks
         const response = await fetch('/api/bookmarks');
         if (!response.ok) throw new Error('Failed to fetch bookmarks');
         
@@ -95,21 +95,37 @@ export function useBookmarks(): BookmarkState {
           bookmarkMap.set(bookmark.id, bookmark);
         });
         
-        // Then add local bookmarks that aren't already in the map
-        localBookmarks.forEach(localBookmark => {
-          if (!bookmarkMap.has(localBookmark.id)) {
-            bookmarkMap.set(localBookmark.id, localBookmark);
-            // Sync this bookmark to MongoDB
-            fetch('/api/bookmarks', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ issue: localBookmark }),
-            }).catch(console.error);
-          }
-        });
+        // Find local bookmarks that need to be synced
+        const bookmarksToSync = localBookmarks.filter(
+          localBookmark => !bookmarkMap.has(localBookmark.id)
+        );
 
-        // Convert map values back to array
-        const mergedBookmarks = Array.from(bookmarkMap.values());
+        // Batch sync new bookmarks if there are any
+        if (bookmarksToSync.length > 0) {
+          try {
+            const syncPromises = bookmarksToSync.map(bookmark =>
+              fetch('/api/bookmarks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ issue: bookmark }),
+              })
+            );
+            
+            await Promise.all(syncPromises);
+            
+            // Add newly synced bookmarks to the map
+            bookmarksToSync.forEach(bookmark => {
+              bookmarkMap.set(bookmark.id, bookmark);
+            });
+          } catch (error) {
+            console.error('Error syncing bookmarks:', error);
+            toast.error('Failed to sync some bookmarks');
+          }
+        }
+
+        // Convert map values back to array and sort by creation date
+        const mergedBookmarks = Array.from(bookmarkMap.values())
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         
         setBookmarks(mergedBookmarks);
         saveBookmarks(mergedBookmarks);
