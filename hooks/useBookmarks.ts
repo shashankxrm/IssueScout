@@ -19,9 +19,10 @@ interface Issue {
   language: string;
   stars: number;
   comments: number;
-  createdAt: string;
+  createdAt: string; // When the issue was created on GitHub
   lastActivity: string;
   html_url: string;
+  bookmarkedAt?: string; // When the user bookmarked this issue
 }
 
 interface BookmarkState {
@@ -35,7 +36,7 @@ interface BookmarkDocument {
   userId: string;
   issueId: number;
   issueData: Issue;
-  createdAt: Date;
+  createdAt: Date; // When the bookmark was created
   updatedAt: Date;
 }
 
@@ -79,10 +80,21 @@ export function useBookmarks(): BookmarkState {
       try {
         // Fetch synced bookmarks
         const response = await fetch('/api/bookmarks');
-        if (!response.ok) throw new Error('Failed to fetch bookmarks');
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.details || 'Failed to fetch bookmarks');
+        }
         
         const data = await response.json() as BookmarkDocument[];
-        const syncedBookmarks = data.map(bookmark => bookmark.issueData);
+        
+        // Process synced bookmarks to include bookmark creation time
+        const syncedBookmarks = data.map(bookmark => {
+          // Add bookmarkedAt to the issue data
+          return {
+            ...bookmark.issueData,
+            bookmarkedAt: bookmark.createdAt.toString()
+          };
+        });
         
         // Get local bookmarks
         const localBookmarks = getStoredBookmarks();
@@ -103,18 +115,31 @@ export function useBookmarks(): BookmarkState {
         // Batch sync new bookmarks if there are any
         if (bookmarksToSync.length > 0) {
           try {
+            const now = new Date();
             const syncPromises = bookmarksToSync.map(bookmark =>
               fetch('/api/bookmarks', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ issue: bookmark }),
+              }).then(async response => {
+                if (!response.ok) {
+                  const errorData = await response.json();
+                  throw new Error(errorData.details || 'Failed to sync bookmark');
+                }
+                
+                const savedBookmark = await response.json();
+                // Add bookmarkedAt to the bookmark data
+                return {
+                  ...bookmark,
+                  bookmarkedAt: savedBookmark.createdAt.toString()
+                };
               })
             );
             
-            await Promise.all(syncPromises);
+            const savedBookmarks = await Promise.all(syncPromises);
             
-            // Add newly synced bookmarks to the map
-            bookmarksToSync.forEach(bookmark => {
+            // Add newly synced bookmarks to the map with bookmark time
+            savedBookmarks.forEach(bookmark => {
               bookmarkMap.set(bookmark.id, bookmark);
             });
           } catch (error) {
@@ -123,9 +148,13 @@ export function useBookmarks(): BookmarkState {
           }
         }
 
-        // Convert map values back to array and sort by creation date
+        // Convert map values back to array and sort by bookmark creation date
         const mergedBookmarks = Array.from(bookmarkMap.values())
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          .sort((a, b) => {
+            const dateA = a.bookmarkedAt ? new Date(a.bookmarkedAt).getTime() : 0;
+            const dateB = b.bookmarkedAt ? new Date(b.bookmarkedAt).getTime() : 0;
+            return dateB - dateA; // Newest bookmarks first
+          });
         
         setBookmarks(mergedBookmarks);
         saveBookmarks(mergedBookmarks);
@@ -167,11 +196,16 @@ export function useBookmarks(): BookmarkState {
       newBookmarks = currentBookmarks.filter(bookmark => bookmark.id !== issue.id);
       if (isAuthenticated) {
         try {
-          await fetch('/api/bookmarks', {
+          const response = await fetch('/api/bookmarks', {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ issueId: issue.id }),
           });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.details || 'Failed to delete bookmark');
+          }
         } catch (error) {
           console.error('Error deleting bookmark:', error);
           toast.error('Failed to delete bookmark');
@@ -179,14 +213,35 @@ export function useBookmarks(): BookmarkState {
         }
       }
     } else {
-      newBookmarks = [...currentBookmarks, issue];
+      const now = new Date();
+      const bookmarkedIssue = {
+        ...issue,
+        bookmarkedAt: now.toString()
+      };
+      
+      newBookmarks = [...currentBookmarks, bookmarkedIssue];
+      
       if (isAuthenticated) {
         try {
-          await fetch('/api/bookmarks', {
+          const response = await fetch('/api/bookmarks', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ issue }),
           });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.details || 'Failed to create bookmark');
+          }
+
+          const savedBookmark = await response.json();
+          console.log('Bookmark saved successfully:', savedBookmark);
+          
+          // Update the bookmarkedAt timestamp with the one from the server
+          const indexToUpdate = newBookmarks.findIndex(b => b.id === issue.id);
+          if (indexToUpdate !== -1) {
+            newBookmarks[indexToUpdate].bookmarkedAt = savedBookmark.createdAt.toString();
+          }
         } catch (error) {
           console.error('Error creating bookmark:', error);
           toast.error('Failed to create bookmark');

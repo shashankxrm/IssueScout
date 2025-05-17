@@ -25,7 +25,7 @@ export function BookmarkedIssues() {
         <IssueCard
           key={bookmark.id}
           issue={bookmark}
-          bookmarkedAt={formatRelativeTime(bookmark.createdAt)}
+          bookmarkedAt={formatRelativeTime(bookmark.bookmarkedAt || bookmark.createdAt)}
         />
       ))}
     </div>

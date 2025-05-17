@@ -4,14 +4,31 @@ import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { authOptions } from "@/lib/auth-options";
 
+interface Bookmark {
+  userId: string;
+  issueId: number;
+  issueData: any;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // Create unique index for userId and issueId combination
 async function ensureIndexes() {
-  const client = await clientPromise;
-  const db = client.db();
-  await db.collection("bookmarks").createIndex(
-    { userId: 1, issueId: 1 },
-    { unique: true }
-  );
+  try {
+    const client = await clientPromise;
+    const db = client.db();
+    await db.collection("bookmarks").createIndex(
+      { userId: 1, issueId: 1 },
+      { unique: true }
+    );
+    // Add index for sorting by createdAt
+    await db.collection("bookmarks").createIndex(
+      { createdAt: -1 }
+    );
+    console.log("Bookmarks indexes created successfully");
+  } catch (error) {
+    console.error("Error creating bookmarks indexes:", error);
+  }
 }
 
 // Call ensureIndexes when the API route is first loaded
@@ -36,7 +53,7 @@ export async function GET() {
   } catch (error) {
     console.error("Error fetching bookmarks:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }
@@ -49,10 +66,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { issue } = await request.json();
+    const body = await request.json();
+    console.log("Received bookmark request body:", body);
+
+    const { issue } = body;
     if (!issue) {
       return NextResponse.json(
         { error: "Issue data is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!issue.id) {
+      return NextResponse.json(
+        { error: "Issue ID is required" },
         { status: 400 }
       );
     }
@@ -61,29 +88,61 @@ export async function POST(request: Request) {
     const db = client.db();
 
     const now = new Date();
-    const bookmark = {
-      userId: session.user.id,
-      issueId: issue.id,
-      issueData: issue,
-      createdAt: now,
-      updatedAt: now,
-    };
 
-    // Use updateOne with upsert to handle duplicates
-    await db.collection("bookmarks").updateOne(
-      { userId: session.user.id, issueId: issue.id },
-      { 
-        $set: bookmark,
-        $setOnInsert: { createdAt: now } // Only set createdAt on insert
-      },
-      { upsert: true }
-    );
+    try {
+      // First check if the bookmark already exists
+      const existingBookmark = await db.collection("bookmarks").findOne({
+        userId: session.user.id,
+        issueId: issue.id
+      });
+      
+      let result;
+      
+      if (existingBookmark) {
+        // Update existing bookmark
+        result = await db.collection("bookmarks").findOneAndUpdate(
+          { userId: session.user.id, issueId: issue.id },
+          { 
+            $set: {
+              issueData: issue,
+              updatedAt: now
+            }
+          },
+          { returnDocument: "after" }
+        );
+        
+        console.log("Updated existing bookmark");
+      } else {
+        // Create new bookmark
+        const newBookmark: Bookmark = {
+          userId: session.user.id,
+          issueId: issue.id,
+          issueData: issue,
+          createdAt: now,
+          updatedAt: now
+        };
+        
+        const insertResult = await db.collection("bookmarks").insertOne(newBookmark);
+        result = { 
+          ...newBookmark,
+          _id: insertResult.insertedId
+        };
+        
+        console.log("Created new bookmark with createdAt:", now);
+      }
 
-    return NextResponse.json(bookmark);
+      return NextResponse.json(result);
+    } catch (dbError) {
+      console.error("Database error creating bookmark:", dbError);
+      return NextResponse.json(
+        { error: "Database error", details: dbError instanceof Error ? dbError.message : "Unknown database error" },
+        { status: 500 }
+      );
+    }
   } catch (error) {
-    console.error("Error creating bookmark:", error);
+    console.error("Error in bookmarks POST route:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }
@@ -116,7 +175,7 @@ export async function DELETE(request: Request) {
   } catch (error) {
     console.error("Error deleting bookmark:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }
