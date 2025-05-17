@@ -1,17 +1,49 @@
+'use client'
+
 import type React from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Bookmark, Clock, GitPullRequest, Star } from "lucide-react"
+import { useBookmarks } from "@/hooks/useBookmarks"
+import { useEffect, useState } from "react"
 
 export function DashboardStats() {
+  const { bookmarks } = useBookmarks()
+  const [bookmarkTrend, setBookmarkTrend] = useState<{ count: number; trend: string; trendUp: boolean | null }>({
+    count: 0,
+    trend: "No change",
+    trendUp: null
+  })
+
+  useEffect(() => {
+    // Calculate trend based on bookmarks created in the last week
+    const oneWeekAgo = new Date()
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+
+    const recentBookmarks = bookmarks.filter(bookmark => {
+      const bookmarkDate = new Date(bookmark.createdAt)
+      return bookmarkDate >= oneWeekAgo
+    })
+
+    const trend = recentBookmarks.length > 0
+      ? `+${recentBookmarks.length} this week`
+      : "No change this week"
+
+    setBookmarkTrend({
+      count: bookmarks.length,
+      trend,
+      trendUp: recentBookmarks.length > 0
+    })
+  }, [bookmarks])
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <StatsCard
         title="Bookmarked Issues"
-        value="12"
+        value={bookmarkTrend.count.toString()}
         description="Total saved issues"
         icon={<Bookmark className="h-4 w-4 text-blue-500" />}
-        trend="+2 this week"
-        trendUp={true}
+        trend={bookmarkTrend.trend}
+        trendUp={bookmarkTrend.trendUp}
       />
       <StatsCard
         title="Recently Viewed"
