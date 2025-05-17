@@ -4,18 +4,25 @@ import type React from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Bookmark, Clock, GitPullRequest, Star } from "lucide-react"
 import { useBookmarks } from "@/hooks/useBookmarks"
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed"
 import { useEffect, useState } from "react"
 
 export function DashboardStats() {
   const { bookmarks } = useBookmarks()
+  const { recentlyViewed } = useRecentlyViewed()
   const [bookmarkTrend, setBookmarkTrend] = useState<{ count: number; trend: string; trendUp: boolean | null }>({
+    count: 0,
+    trend: "No change",
+    trendUp: null
+  })
+  const [viewTrend, setViewTrend] = useState<{ count: number; trend: string; trendUp: boolean | null }>({
     count: 0,
     trend: "No change",
     trendUp: null
   })
 
   useEffect(() => {
-    // Calculate trend based on bookmarks created in the last week
+    // Calculate bookmark trend based on bookmarks created in the last week
     const oneWeekAgo = new Date()
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
 
@@ -24,16 +31,46 @@ export function DashboardStats() {
       return bookmarkDate >= oneWeekAgo
     })
 
-    const trend = recentBookmarks.length > 0
+    const bookmarkTrendText = recentBookmarks.length > 0
       ? `+${recentBookmarks.length} this week`
       : "No change this week"
 
     setBookmarkTrend({
       count: bookmarks.length,
-      trend,
+      trend: bookmarkTrendText,
       trendUp: recentBookmarks.length > 0
     })
-  }, [bookmarks])
+
+    // Calculate view trend based on views in the last week
+    const recentViews = recentlyViewed.filter(view => {
+      const viewDate = new Date(view.createdAt)
+      return viewDate >= oneWeekAgo
+    })
+
+    // Get unique views in the last 30 days
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+    const uniqueViews = recentlyViewed.reduce((acc, current) => {
+      const viewDate = new Date(current.createdAt)
+      if (viewDate >= thirtyDaysAgo) {
+        const existingIndex = acc.findIndex(item => item.issueData.id === current.issueData.id)
+        if (existingIndex === -1) {
+          acc.push(current)
+        }
+      }
+      return acc
+    }, [] as typeof recentlyViewed)
+
+    const viewTrendText = recentViews.length > 0
+      ? `+${recentViews.length} this week`
+      : "No change this week"
+
+    setViewTrend({
+      count: uniqueViews.length,
+      trend: viewTrendText,
+      trendUp: recentViews.length > 0
+    })
+  }, [bookmarks, recentlyViewed])
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -47,11 +84,11 @@ export function DashboardStats() {
       />
       <StatsCard
         title="Recently Viewed"
-        value="24"
+        value={viewTrend.count.toString()}
         description="Issues viewed in last 30 days"
         icon={<Clock className="h-4 w-4 text-green-500" />}
-        trend="+8 this week"
-        trendUp={true}
+        trend={viewTrend.trend}
+        trendUp={viewTrend.trendUp}
       />
       <StatsCard
         title="Contributions"
