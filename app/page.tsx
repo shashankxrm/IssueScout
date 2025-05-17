@@ -57,7 +57,9 @@ export default function Home() {
           onNoAssigneeChange={setNoAssignee}
         />
 
-        {issues.length > 0 ? (
+        {!loading && issues.length === 0 ? (
+          <EmptyState />
+        ) : (
           <>
             <IssueGrid issues={issues} loading={loading} error={error} />
             <Pagination
@@ -66,8 +68,6 @@ export default function Home() {
               onPageChange={handlePageChange}
             />
           </>
-        ) : (
-          <EmptyState />
         )}
       </div>
     </div>
