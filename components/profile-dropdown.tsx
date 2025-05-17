@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LayoutDashboard, LogOut } from "lucide-react"
+import { LayoutDashboard, LogOut, PlusCircle } from 'lucide-react';
 import Link from "next/link"
 
 export function ProfileDropdown() {
@@ -39,12 +39,21 @@ export function ProfileDropdown() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <Link href="/dashboard">
-          <DropdownMenuItem>
-            <LayoutDashboard className="mr-2 h-4 w-4" />
-            <span>Dashboard</span>
-          </DropdownMenuItem>
-        </Link>
+        {window.location.pathname === "/" ? (
+          <Link href="/dashboard">
+            <DropdownMenuItem>
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              <span>Dashboard</span>
+            </DropdownMenuItem>
+          </Link>
+        ) : (
+          <Link href="/">
+            <DropdownMenuItem>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              <span>Issues</span>
+            </DropdownMenuItem>
+          </Link>
+        )}
         <DropdownMenuItem onClick={logout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
