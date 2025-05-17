@@ -4,11 +4,12 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
-import { Github, LayoutDashboard, PlusCircle } from "lucide-react"
+import { Github, LayoutDashboard, PlusCircle, Info } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/lib/auth"
 import { ProfileDropdown } from "@/components/profile-dropdown"
 import { useTheme } from "next-themes"
+
 
 export default function Header() {
   const pathname = usePathname()
@@ -37,7 +38,13 @@ export default function Header() {
             IssueScout
           </span>
         </Link>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
+          <Link href="/about">
+            <Button variant="ghost" size="sm" className="gap-2">
+              <Info className="h-5 w-5" />
+              <span className="hidden md:block">About</span>
+            </Button>
+          </Link>
           <ModeToggle />
             {isDashboard ? (
             <Link href="/">
