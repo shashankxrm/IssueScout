@@ -4,6 +4,19 @@ import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { authOptions } from "@/lib/auth-options";
 
+// Create unique index for userId and issueId combination
+async function ensureIndexes() {
+  const client = await clientPromise;
+  const db = client.db();
+  await db.collection("bookmarks").createIndex(
+    { userId: 1, issueId: 1 },
+    { unique: true }
+  );
+}
+
+// Call ensureIndexes when the API route is first loaded
+ensureIndexes().catch(console.error);
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -16,6 +29,7 @@ export async function GET() {
     const bookmarks = await db
       .collection("bookmarks")
       .find({ userId: session.user.id })
+      .sort({ createdAt: -1 }) // Sort by creation date, newest first
       .toArray();
 
     return NextResponse.json(bookmarks);
@@ -54,7 +68,12 @@ export async function POST(request: Request) {
       updatedAt: new Date(),
     };
 
-    await db.collection("bookmarks").insertOne(bookmark);
+    // Use updateOne with upsert to handle duplicates
+    await db.collection("bookmarks").updateOne(
+      { userId: session.user.id, issueId: issue.id },
+      { $set: bookmark },
+      { upsert: true }
+    );
 
     return NextResponse.json(bookmark);
   } catch (error) {
