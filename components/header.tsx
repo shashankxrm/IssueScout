@@ -4,7 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
-import { Github, LayoutDashboard } from "lucide-react"
+import { Github, LayoutDashboard, PlusCircle } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/lib/auth"
 import { ProfileDropdown } from "@/components/profile-dropdown"
@@ -39,14 +39,21 @@ export default function Header() {
         </Link>
         <div className="flex items-center gap-4">
           <ModeToggle />
-          {!isDashboard && (
-            <Link href="/dashboard">
+            {isDashboard ? (
+            <Link href="/">
               <Button variant="outline" size="sm" className="gap-1">
-                <LayoutDashboard className="h-4 w-4" />
-                <span>Dashboard</span>
+              <PlusCircle className="h-4 w-4" />
+              <span className="hidden md:block">Issues</span>
               </Button>
             </Link>
-          )}
+            ) : (
+            <Link href="/dashboard">
+              <Button variant="outline" size="sm" className="gap-1">
+              <LayoutDashboard className="h-4 w-4" />
+              <span className="hidden md:block">Dashboard</span>
+              </Button>
+            </Link>
+            )}
           {isAuthenticated ? (
             <ProfileDropdown />
           ) : (
