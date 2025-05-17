@@ -1,16 +1,14 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import clientPromise from "@/lib/mongodb";
-import { ObjectId } from "mongodb";
 import { authOptions } from "@/lib/auth-options";
 
-// Create unique index for userId and issueId combination
+// Create index for userId and createdAt
 async function ensureIndexes() {
   const client = await clientPromise;
   const db = client.db();
-  await db.collection("bookmarks").createIndex(
-    { userId: 1, issueId: 1 },
-    { unique: true }
+  await db.collection("recentlyViewed").createIndex(
+    { userId: 1, createdAt: -1 }
   );
 }
 
@@ -26,15 +24,16 @@ export async function GET() {
 
     const client = await clientPromise;
     const db = client.db();
-    const bookmarks = await db
-      .collection("bookmarks")
+    const recentlyViewed = await db
+      .collection("recentlyViewed")
       .find({ userId: session.user.id })
-      .sort({ createdAt: -1 }) // Sort by creation date, newest first
+      .sort({ createdAt: -1 })
+      .limit(10)
       .toArray();
 
-    return NextResponse.json(bookmarks);
+    return NextResponse.json(recentlyViewed);
   } catch (error) {
-    console.error("Error fetching bookmarks:", error);
+    console.error("Error fetching recently viewed issues:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -61,60 +60,37 @@ export async function POST(request: Request) {
     const db = client.db();
 
     const now = new Date();
-    const bookmark = {
+    const recentlyViewed = {
       userId: session.user.id,
       issueId: issue.id,
       issueData: issue,
       createdAt: now,
-      updatedAt: now,
     };
 
-    // Use updateOne with upsert to handle duplicates
-    await db.collection("bookmarks").updateOne(
+    // Update existing record or insert new one
+    await db.collection("recentlyViewed").updateOne(
       { userId: session.user.id, issueId: issue.id },
-      { 
-        $set: bookmark,
-        $setOnInsert: { createdAt: now } // Only set createdAt on insert
-      },
+      { $set: recentlyViewed },
       { upsert: true }
     );
 
-    return NextResponse.json(bookmark);
-  } catch (error) {
-    console.error("Error creating bookmark:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
-}
+    // Keep only the 10 most recent views
+    const views = await db
+      .collection("recentlyViewed")
+      .find({ userId: session.user.id })
+      .sort({ createdAt: -1 })
+      .skip(10)
+      .toArray();
 
-export async function DELETE(request: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (views.length > 0) {
+      await db.collection("recentlyViewed").deleteMany({
+        _id: { $in: views.map(view => view._id) }
+      });
     }
 
-    const { issueId } = await request.json();
-    if (!issueId) {
-      return NextResponse.json(
-        { error: "Issue ID is required" },
-        { status: 400 }
-      );
-    }
-
-    const client = await clientPromise;
-    const db = client.db();
-
-    await db.collection("bookmarks").deleteOne({
-      userId: session.user.id,
-      issueId: issueId,
-    });
-
-    return NextResponse.json({ success: true });
+    return NextResponse.json(recentlyViewed);
   } catch (error) {
-    console.error("Error deleting bookmark:", error);
+    console.error("Error creating recently viewed issue:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
