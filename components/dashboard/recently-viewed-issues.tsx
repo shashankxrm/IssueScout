@@ -4,9 +4,13 @@ import { useRecentlyViewed } from "@/hooks/useRecentlyViewed"
 import { IssueCard } from "@/components/issue-card"
 import { formatRelativeTime } from "@/lib/utils"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { useAuth } from "@/lib/auth"
+import { Button } from '@/components/ui/button';
+import { Github } from "lucide-react"
 
 export function RecentlyViewedIssues() {
   const { recentlyViewed, isLoading } = useRecentlyViewed()
+  const { isAuthenticated, login } = useAuth()
 
   if (isLoading) {
     return (
@@ -20,8 +24,21 @@ export function RecentlyViewedIssues() {
       </div>
     )
   }
+  if (!isAuthenticated) {
+    return (
+      <div className="space-y-4">
+        <div className="rounded-lg border border-dashed p-8 text-center flex flex-col items-center gap-4">
+          <p className="text-muted-foreground">Sign in to view your recently viewed issues</p>
+          <Button variant="default" size="sm" className="gap-1" onClick={login}>
+            <Github className="h-4 w-4" />
+            <span>Sync with GitHub</span>
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
-  if (!recentlyViewed.length) {
+  if (isAuthenticated && recentlyViewed.length === 0) {
     return (
       <div className="space-y-4">
         <div className="rounded-lg border border-dashed p-8 text-center">
