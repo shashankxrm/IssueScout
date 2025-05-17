@@ -1,49 +1,63 @@
 "use client"
 
 import * as React from 'react';
+import { useSession, signIn, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: { login: string } | null;
-  login: () => void;
-  logout: () => void;
+  user: { 
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+    githubUsername?: string;
+  } | null;
+  login: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
-  const [user, setUser] = React.useState<{ login: string } | null>(null);
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const isAuthenticated = status === "authenticated";
 
-  // For now, we'll just use localStorage to persist the auth state
-  React.useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
+  const login = async () => {
+    try {
+      const result = await signIn("github", {
+        redirect: false,
+        callbackUrl: "/",
+      });
+
+      if (result?.error) {
+        console.error("Sign in error:", result.error);
+        return;
+      }
+
+      if (result?.url) {
+        router.push(result.url);
+      }
+    } catch (error) {
+      console.error("Sign in error:", error);
     }
-  }, []);
-
-  const login = () => {
-    // This is a placeholder. We'll implement actual GitHub OAuth later
-    const mockUser = { login: 'testuser' };
-    setUser(mockUser);
-    setIsAuthenticated(true);
-    localStorage.setItem('user', JSON.stringify(mockUser));
   };
 
-  const logout = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      await signOut({ redirect: false });
+      router.push("/");
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
   };
 
   const value = React.useMemo(() => ({
     isAuthenticated,
-    user,
+    user: session?.user || null,
     login,
     logout
-  }), [isAuthenticated, user]);
+  }), [isAuthenticated, session?.user, router]);
 
   return (
     <AuthContext.Provider value={value}>

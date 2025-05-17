@@ -6,11 +6,12 @@ import { ModeToggle } from "@/components/mode-toggle"
 import { Github, LayoutDashboard } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/lib/auth"
+import { ProfileDropdown } from "@/components/profile-dropdown"
 
 export default function Header() {
   const pathname = usePathname()
   const isDashboard = pathname === "/dashboard"
-  const { isAuthenticated, login, logout } = useAuth()
+  const { isAuthenticated, login } = useAuth()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -47,15 +48,19 @@ export default function Header() {
               </Button>
             </Link>
           )}
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="gap-1"
-            onClick={isAuthenticated ? logout : login}
-          >
-            <Github className="h-4 w-4" />
-            <span>{isAuthenticated ? "Sign out" : "Sign in"}</span>
-          </Button>
+          {isAuthenticated ? (
+            <ProfileDropdown />
+          ) : (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-1"
+              onClick={login}
+            >
+              <Github className="h-4 w-4" />
+              <span>Sign in</span>
+            </Button>
+          )}
         </div>
       </div>
     </header>

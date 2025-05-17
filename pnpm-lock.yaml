@@ -11,6 +11,9 @@ importers:
       '@auth/core':
         specifier: ^0.39.1
         version: 0.39.1
+      '@auth/mongodb-adapter':
+        specifier: ^3.9.1
+        version: 3.9.1(mongodb@6.16.0)
       '@hookform/resolvers':
         specifier: ^3.9.1
         version: 3.10.0(react-hook-form@7.56.3(react@19.1.0))
@@ -203,6 +206,11 @@ packages:
         optional: true
       nodemailer:
         optional: true
+
+  '@auth/mongodb-adapter@3.9.1':
+    resolution: {integrity: sha512-pzJSf1Ehs/wVrCJAFwQLiShw6+RZT23g2Ljpo4c/3iy6LDJhoTjlih9L8B0qCnK1Qv9xYZoQLwrXl6kMSyiHtg==}
+    peerDependencies:
+      mongodb: ^6
 
   '@babel/runtime@7.27.1':
     resolution: {integrity: sha512-1x3D2xEk2fRo3PAhwQwu5UubzgiVWSXTBfWpVd2Mx2AzRqJuDJCsgaDVZ7HB5iGzDW1Hl1sWN2mFyKjmR9uAog==}
@@ -2266,6 +2274,15 @@ snapshots:
       oauth4webapi: 3.5.1
       preact: 10.24.3
       preact-render-to-string: 6.5.11(preact@10.24.3)
+
+  '@auth/mongodb-adapter@3.9.1(mongodb@6.16.0)':
+    dependencies:
+      '@auth/core': 0.39.1
+      mongodb: 6.16.0
+    transitivePeerDependencies:
+      - '@simplewebauthn/browser'
+      - '@simplewebauthn/server'
+      - nodemailer
 
   '@babel/runtime@7.27.1': {}
 
