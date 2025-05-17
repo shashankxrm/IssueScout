@@ -50,6 +50,20 @@ export interface SearchFilters {
   noAssignee?: boolean;
 }
 
+export interface GitHubPullRequest {
+  id: number;
+  number: number;
+  title: string;
+  html_url: string;
+  created_at: string;
+  updated_at: string;
+  state: string;
+  repository: {
+    full_name: string;
+    html_url: string;
+  };
+}
+
 export class GitHubService {
   private static getHeaders() {
     const token = process.env.GITHUB_TOKEN;
@@ -339,6 +353,44 @@ export class GitHubService {
     }
   }
 
+  static async getUserPullRequests(): Promise<GitHubPullRequest[]> {
+    try {
+      // Fetch authenticated user's username first
+      const userResponse = await fetch(`${GITHUB_API_URL}/user`, {
+        headers: this.getHeaders(),
+      });
+
+      if (!userResponse.ok) {
+        throw new Error(`GitHub API error (${userResponse.status}): Failed to fetch user info`);
+      }
+
+      const userData = await userResponse.json();
+      const username = userData.login;
+
+      // Search for pull requests created by the user
+      const query = `is:pr author:${username}`;
+      const response = await fetch(
+        `${GITHUB_API_URL}/search/issues?q=${encodeURIComponent(query)}&sort=created&order=desc`,
+        {
+          headers: this.getHeaders(),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          `GitHub API error (${response.status}): ${errorData?.message || response.statusText}`
+        );
+      }
+
+      const data = await response.json();
+      return data.items as GitHubPullRequest[];
+    } catch (error) {
+      console.error('GitHub API Error fetching user PRs:', error);
+      throw error;
+    }
+  }
+
   static getPopularLanguages(): string[] {
     // Return exact language names as they appear in GitHub
     return [
@@ -359,4 +411,4 @@ export class GitHubService {
       'Scala'
     ];
   }
-} 
+}

@@ -6,6 +6,7 @@ import { Bookmark, Clock, GitPullRequest, Star } from "lucide-react"
 import { useBookmarks } from "@/hooks/useBookmarks"
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed"
 import { useEffect, useState } from "react"
+import { GitHubPullRequest, GitHubService } from "@/lib/github"
 
 export function DashboardStats() {
   const { bookmarks } = useBookmarks()
@@ -20,6 +21,48 @@ export function DashboardStats() {
     trend: "No change",
     trendUp: null
   })
+  const [prTrend, setPrTrend] = useState<{ count: number; trend: string; trendUp: boolean | null }>({
+    count: 0,
+    trend: "No change",
+    trendUp: null
+  })
+  const [isLoadingPRs, setIsLoadingPRs] = useState(true)
+
+  // Fetch GitHub pull requests
+  useEffect(() => {
+    async function fetchPullRequests() {
+      try {
+        setIsLoadingPRs(true)
+        const pullRequests = await GitHubService.getUserPullRequests()
+        
+        // Calculate PR stats
+        const oneWeekAgo = new Date()
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+
+        const recentPRs = pullRequests.filter(pr => {
+          const prDate = new Date(pr.created_at)
+          return prDate >= oneWeekAgo
+        })
+
+        setPrTrend({
+          count: recentPRs.length,
+          trend: recentPRs.length > 0 ? `${recentPRs.length} this week` : "No PRs this week",
+          trendUp: recentPRs.length > 0
+        })
+      } catch (error) {
+        console.error("Error fetching pull requests:", error)
+        setPrTrend({
+          count: 0,
+          trend: "Failed to load",
+          trendUp: null
+        })
+      } finally {
+        setIsLoadingPRs(false)
+      }
+    }
+
+    fetchPullRequests()
+  }, [])
 
   useEffect(() => {
     // Calculate bookmark trend based on bookmarks created in the last week
@@ -92,15 +135,15 @@ export function DashboardStats() {
       />
       <StatsCard
         title="Contributions"
-        value="5"
+        value={prTrend.count.toString()}
         description="Pull requests submitted"
         icon={<GitPullRequest className="h-4 w-4 text-purple-500" />}
-        trend="+1 this week"
-        trendUp={true}
+        trend={isLoadingPRs ? "Loading..." : prTrend.trend}
+        trendUp={prTrend.trendUp}
       />
       <StatsCard
         title="Stars Earned"
-        value="18"
+        value="0"
         description="On your contributions"
         icon={<Star className="h-4 w-4 text-yellow-500" />}
         trend="Same as last week"
