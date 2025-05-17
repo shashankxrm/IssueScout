@@ -31,6 +31,14 @@ interface BookmarkState {
   isLoading: boolean;
 }
 
+interface BookmarkDocument {
+  userId: string;
+  issueId: number;
+  issueData: Issue;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 const STORAGE_KEY = 'bookmarks';
 const BOOKMARKS_CHANGED_EVENT = 'bookmarksChanged';
 
@@ -73,17 +81,24 @@ export function useBookmarks(): BookmarkState {
         const response = await fetch('/api/bookmarks');
         if (!response.ok) throw new Error('Failed to fetch bookmarks');
         
-        const data = await response.json();
-        const syncedBookmarks = data.map((bookmark: any) => bookmark.issueData);
+        const data = await response.json() as BookmarkDocument[];
+        const syncedBookmarks = data.map(bookmark => bookmark.issueData);
         
-        // Merge local bookmarks with synced bookmarks
+        // Get local bookmarks
         const localBookmarks = getStoredBookmarks();
-        const mergedBookmarks = [...syncedBookmarks];
         
-        // Add local bookmarks that aren't in synced bookmarks
+        // Create a Map of all bookmarks by ID for efficient lookup
+        const bookmarkMap = new Map<number, Issue>();
+        
+        // First add all synced bookmarks
+        syncedBookmarks.forEach(bookmark => {
+          bookmarkMap.set(bookmark.id, bookmark);
+        });
+        
+        // Then add local bookmarks that aren't already in the map
         localBookmarks.forEach(localBookmark => {
-          if (!mergedBookmarks.some(b => b.id === localBookmark.id)) {
-            mergedBookmarks.push(localBookmark);
+          if (!bookmarkMap.has(localBookmark.id)) {
+            bookmarkMap.set(localBookmark.id, localBookmark);
             // Sync this bookmark to MongoDB
             fetch('/api/bookmarks', {
               method: 'POST',
@@ -93,6 +108,9 @@ export function useBookmarks(): BookmarkState {
           }
         });
 
+        // Convert map values back to array
+        const mergedBookmarks = Array.from(bookmarkMap.values());
+        
         setBookmarks(mergedBookmarks);
         saveBookmarks(mergedBookmarks);
       } catch (error) {
@@ -109,7 +127,6 @@ export function useBookmarks(): BookmarkState {
   // Listen for bookmark changes from other components
   useEffect(() => {
     const handleBookmarksChanged = (event: CustomEvent<Issue[]>) => {
-      console.log('Bookmarks changed event received:', event.detail);
       setBookmarks(event.detail);
     };
 
@@ -124,17 +141,13 @@ export function useBookmarks(): BookmarkState {
   }, [bookmarks]);
 
   const toggleBookmark = useCallback(async (issue: Issue) => {
-    console.log('Toggling bookmark for issue:', issue);
     const currentBookmarks = getStoredBookmarks();
-    console.log('Current bookmarks from storage:', currentBookmarks);
-
     const isAlreadyBookmarked = currentBookmarks.some(
       bookmark => bookmark.id === issue.id
     );
 
     let newBookmarks;
     if (isAlreadyBookmarked) {
-      console.log('Removing bookmark');
       newBookmarks = currentBookmarks.filter(bookmark => bookmark.id !== issue.id);
       if (isAuthenticated) {
         try {
@@ -150,7 +163,6 @@ export function useBookmarks(): BookmarkState {
         }
       }
     } else {
-      console.log('Adding bookmark');
       newBookmarks = [...currentBookmarks, issue];
       if (isAuthenticated) {
         try {
@@ -167,7 +179,6 @@ export function useBookmarks(): BookmarkState {
       }
     }
 
-    console.log('New bookmarks to save:', newBookmarks);
     saveBookmarks(newBookmarks);
     setBookmarks(newBookmarks);
   }, [isAuthenticated]);
