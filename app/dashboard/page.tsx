@@ -5,6 +5,7 @@ import { DashboardStats } from "@/components/dashboard/dashboard-stats"
 import { Button } from "@/components/ui/button"
 import { PlusCircle } from "lucide-react"
 import Link from "next/link"
+import { FloatingCta } from "@/components/landing/floating-cta"
 
 export default function DashboardPage() {
   return (
@@ -29,6 +30,18 @@ export default function DashboardPage() {
           <RecentlyViewedIssues />
         </div>
       </div>
+      <FloatingCta 
+        text="Found any bugs or wanna request an feature?" 
+        buttonText="Report"
+        buttonHref="mailto:shashankreddy0608@gmail.com"
+        buttonProps={{
+          variant: "outline",
+          size: "sm",
+          className: "rounded-full"
+        }}
+        showAfterScroll={true}
+        
+      />
     </div>
   )
 }

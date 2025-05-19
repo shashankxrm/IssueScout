@@ -21,7 +21,12 @@ export default function LandingPage() {
       <WhyIssueScout />
       <Testimonials />
       <FinalCta />
-      <FloatingCta />
+      <FloatingCta 
+        text="Ready to explore issues?"
+        buttonText="Find Issues"
+        buttonHref="/"
+        showAfterScroll={400}
+      />
     </div>
   )
 }

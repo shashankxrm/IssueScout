@@ -5,6 +5,7 @@ import { IssueGrid } from "@/components/issue-grid"
 import { EmptyState } from "@/components/empty-state"
 import { Pagination } from "@/components/pagination"
 import { useIssues } from '@/hooks/useIssues';
+import { FloatingCta } from "@/components/landing/floating-cta"
 
 export default function Home() {
   const {
@@ -70,6 +71,18 @@ export default function Home() {
           </>
         )}
       </div>
+      <FloatingCta 
+        text="Found any bugs or wanna request an feature?" 
+        buttonText="Report"
+        buttonHref="mailto:shashankreddy0608@gmail.com"
+        buttonProps={{
+          variant: "outline",
+          size: "sm",
+          className: "rounded-full"
+        }}
+        showAfterScroll={true}
+        
+      />
     </div>
   )
 }
