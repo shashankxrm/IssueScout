@@ -1,11 +1,27 @@
-import React from 'react'
+import { HeroSection } from "@/components/landing/hero-section"
+import { FeatureCards } from "@/components/landing/feature-cards"
+import { PreviewSection } from "@/components/landing/preview-section"
+import { HowItWorks } from "@/components/landing/how-it-works"
+import { WhyIssueScout } from "@/components/landing/why-issuescout"
+import { Testimonials } from "@/components/landing/testimonials"
+import { FinalCta } from "@/components/landing/final-cta"
+import { FloatingCta } from "@/components/landing/floating-cta"
+import { StarsCanvas } from "@/components/landing/stars-canvas"
 
-const page = () => {
+export default function LandingPage() {
   return (
-    <div className="flex items-center justify-center h-screen">
-       <p className="text-2xl"> Page Content is Coming Soon...</p>
+    <div className="relative overflow-hidden">
+      <div className="absolute inset-0 -z-10">
+        <StarsCanvas />
+      </div>
+      <HeroSection />
+      <FeatureCards />
+      <PreviewSection />
+      <HowItWorks />
+      <WhyIssueScout />
+      <Testimonials />
+      <FinalCta />
+      <FloatingCta />
     </div>
   )
 }
-
-export default page
