@@ -13,9 +13,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { LayoutDashboard, LogOut, PlusCircle } from 'lucide-react';
 import Link from "next/link"
+import { usePathname } from 'next/navigation'
 
 export function ProfileDropdown() {
   const { user, logout } = useAuth();
+  const pathname = usePathname();
 
   if (!user) return null;
 
@@ -39,7 +41,7 @@ export function ProfileDropdown() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {window.location.pathname === "/" ? (
+        {pathname === "/" ? (
           <Link href="/dashboard">
             <DropdownMenuItem>
               <LayoutDashboard className="mr-2 h-4 w-4" />

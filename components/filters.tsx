@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { GitHubService } from '@/lib/github';
 
-interface FiltersProps {
+export interface FiltersProps {
   onLanguageChange: (languages: string[]) => void;
   selectedLanguages: string[];
   onLabelChange: (labels: string[]) => void;

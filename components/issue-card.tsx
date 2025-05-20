@@ -133,6 +133,7 @@ export function IssueCard({ issue, bookmarkedAt, viewedAt }: IssueCardProps) {
             size="icon" 
             className={`h-8 w-8 ${isBookmarked(issue.id) ? 'text-yellow-500' : ''}`}
             onClick={handleBookmarkClick}
+            aria-label={isBookmarked(issue.id) ? 'Remove bookmark' : 'Add bookmark'}
           >
             <Bookmark className={`h-4 w-4 ${isBookmarked(issue.id) ? 'fill-current' : ''}`} />
           </Button>
@@ -141,6 +142,7 @@ export function IssueCard({ issue, bookmarkedAt, viewedAt }: IssueCardProps) {
             size="sm" 
             className="h-8 gap-1"
             onClick={handleView}
+            aria-label="View issue on GitHub"
           >
             <ExternalLink className="h-3.5 w-3.5" />
             <span className="text-xs">View</span>
