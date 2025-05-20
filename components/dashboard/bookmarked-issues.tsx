@@ -8,7 +8,16 @@ export function BookmarkedIssues() {
   const { bookmarks, isLoading } = useBookmarks()
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return (
+      <div className="space-y-4">
+        <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-[200px] bg-muted animate-pulse rounded-lg" />
+          ))}
+        </div>
+      </div>
+    )
   }
 
   if (bookmarks.length === 0) {
