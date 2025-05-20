@@ -18,4 +18,19 @@ expect.extend(matchers)
 // Cleanup after each test case (e.g. clearing jsdom)
 afterEach(() => {
   cleanup()
-}) 
+})
+
+if (typeof window !== 'undefined' && !window.matchMedia) {
+  window.matchMedia = function (query) {
+    return {
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    };
+  };
+} 
