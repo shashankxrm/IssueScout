@@ -20,6 +20,9 @@ const jetBrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "IssueScout | Find beginner-friendly open-source issues, faster.",
   description: "Discover beginner-friendly open source issues to contribute to on GitHub",
+  icons: {
+    icon: "/issuescout.png",
+  },
 }
 
 export default function RootLayout({
