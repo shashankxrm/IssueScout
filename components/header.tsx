@@ -38,7 +38,7 @@ export default function Header() {
             IssueScout
           </span>
         </Link>
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center gap-[6px] md:gap-4">
           <Link href="/about">
             <Button variant="ghost" size="sm" className="gap-2">
               <Info className="h-5 w-5" />
@@ -62,7 +62,9 @@ export default function Header() {
             </Link>
             )}
           {isAuthenticated ? (
-            <ProfileDropdown />
+            <span className="flex items-center ml-2">
+              <ProfileDropdown />
+            </span>
           ) : (
             <Button 
               variant="outline" 
@@ -71,7 +73,7 @@ export default function Header() {
               onClick={login}
             >
               <Github className="h-4 w-4" />
-              <span>Sign in</span>
+              <span className="hidden md:block">Sign in</span>
             </Button>
           )}
         </div>
