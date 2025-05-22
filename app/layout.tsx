@@ -20,10 +20,18 @@ const jetBrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "IssueScout | Find beginner-friendly open-source issues, faster.",
   description: "Discover beginner-friendly open source issues to contribute to on GitHub",
-  icons: [
-    { rel: "icon", url: "/issuescout.png" },
-    { rel: "apple-touch-icon", sizes: "180x180", url: "/issuescout-light.png" },
-  ],
+  icons: {
+    icon: { 
+      url: "/issuescout-big.png",
+      sizes: "64x64", 
+      type: "image/png" 
+    },
+    shortcut: [
+      { url: "/issuescout-big.png", sizes: "64x64", type: "image/png" }
+    ],
+    apple: { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
+  },
+  manifest: "/site.webmanifest"
 }
 
 export default function RootLayout({
