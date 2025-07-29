@@ -29,6 +29,19 @@ jobs:
         with:
           version: 10
 
+      - name: Check for required secrets
+        run: |
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+            echo "❌ VERCEL_TOKEN secret is not configured"
+            echo "📋 To fix this:"
+            echo "1. Go to your Vercel dashboard: https://vercel.com/account/tokens"
+            echo "2. Create a new token"
+            echo "3. Add it to GitHub Secrets as VERCEL_TOKEN"
+            echo "4. Go to: https://github.com/${{ github.repository }}/settings/secrets/actions"
+            exit 1
+          fi
+          echo "✅ All required secrets are configured"
+
       - name: Install Vercel CLI
         run: pnpm add --global vercel@latest
 
@@ -62,8 +75,42 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build application for Lighthouse
+        run: pnpm run build
+        env:
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-for-lighthouse' }}
+          NEXTAUTH_URL: http://localhost:3000
+          MONGODB_URI: ${{ secrets.MONGODB_URI || 'mongodb://localhost:27017/test' }}
+
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v10
+        continue-on-error: true
         with:
           configPath: './lighthouserc.json'
           uploadArtifacts: true

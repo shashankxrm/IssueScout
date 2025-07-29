@@ -45,6 +45,7 @@
     </li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#testing">Testing</a></li>
+    <li><a href="#deployment">Deployment</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#contact">Contact</a></li>
   </ol>
@@ -139,15 +140,35 @@ npx playwright test
 
 ### CI/CD
 
-We use GitHub Actions for continuous integration. Every pull request and push to the main branch triggers:
+We use GitHub Actions for continuous integration and deployment:
 
-1. Application build
-2. Automated test runs across multiple browsers
-3. Test report generation
+**CI Pipeline** (runs on every PR and push):
+- ✅ ESLint checking
+- ✅ TypeScript type checking  
+- ✅ Test suite with coverage
+- ✅ Build verification
+- ✅ Security audit
 
-The test badge at the top of this README shows the current test status for the main branch.
+**CD Pipeline** (runs on main branch):
+- 🚀 Automatic deployment to Vercel
+- 📊 Lighthouse performance audits
 
-To see detailed test reports, check the "Actions" tab in the GitHub repository.
+The pipeline ensures code quality and automates deployment. Check the "Actions" tab for detailed build logs.
+
+## Deployment
+
+For deployment setup and configuration, see our [Deployment Guide](./docs/DEPLOYMENT.md).
+
+### Quick Setup
+1. Configure required secrets in GitHub repository settings
+2. Connect your repository to Vercel
+3. Push to `main` branch for automatic deployment
+
+Required secrets:
+- `VERCEL_TOKEN` - For Vercel deployment
+- `NEXTAUTH_SECRET` - For authentication
+- `MONGODB_URI` - Database connection
+- `CODECOV_TOKEN` - Code coverage (optional)
 -->
 
 
