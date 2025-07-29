@@ -27,7 +27,6 @@
     <!-- CI/CD and Testing Badges -->
     <img src="https://github.com/shashankxrm/IssueScout/actions/workflows/ci.yml/badge.svg" alt="CI Pipeline" />
     <img src="https://github.com/shashankxrm/IssueScout/actions/workflows/cd.yml/badge.svg" alt="CD Pipeline" />
-    <img src="https://codecov.io/gh/shashankxrm/IssueScout/branch/main/graph/badge.svg" alt="Coverage" />
     <br />
     <img src="https://img.shields.io/badge/tests-41%20passing-brightgreen" alt="Test Count" />
     <img src="https://img.shields.io/badge/test%20framework-vitest-green" alt="Test Framework" />
@@ -158,6 +157,7 @@ pnpm test:coverage
 
 # Run tests with UI (visual test runner)
 pnpm test:ui
+```
 
 
 
