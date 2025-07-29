@@ -4,7 +4,7 @@ import { FloatingCta } from "@/components/landing/floating-cta";
 
 // Basic usage with default properties
 export function BasicExample() {
-  return <FloatingCta />;
+  return <FloatingCta buttonText="Get Started" />;
 }
 
 // Custom text and button
@@ -38,6 +38,7 @@ export function CustomButtonExample() {
   return (
     <FloatingCta
       text="Visit our documentation"
+      buttonText="Explore Docs"
       buttonContent={
         <div className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-full">
           <svg
