@@ -78,7 +78,6 @@ Runs on every push and pull request:
 Runs on pushes to `main` branch:
 - ✅ Run full CI pipeline first
 - 🚀 Deploy to Vercel production
-- 📊 Lighthouse performance audit
 
 ### Preview Deployments (`.github/workflows/preview.yml`)
 Runs on pull requests:
@@ -114,13 +113,3 @@ vercel login
 # Deploy
 vercel --prod
 ```
-
-## Performance Monitoring
-
-The pipeline includes automatic Lighthouse audits that check:
-- Performance scores
-- Accessibility compliance
-- Best practices
-- SEO optimization
-
-Results are uploaded as GitHub Actions artifacts.

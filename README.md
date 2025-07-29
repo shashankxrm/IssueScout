@@ -151,7 +151,6 @@ We use GitHub Actions for continuous integration and deployment:
 
 **CD Pipeline** (runs on main branch):
 - 🚀 Automatic deployment to Vercel
-- 📊 Lighthouse performance audits
 
 The pipeline ensures code quality and automates deployment. Check the "Actions" tab for detailed build logs.
 
