@@ -6,7 +6,7 @@ import { Bookmark, Clock, GitPullRequest, Star } from "lucide-react"
 import { useBookmarks } from "@/hooks/useBookmarks"
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed"
 import { useEffect, useState } from "react"
-import { GitHubPullRequest, GitHubService } from "@/lib/github"
+import { GitHubService } from "@/lib/github"
 
 export function DashboardStats() {
   const { bookmarks } = useBookmarks()

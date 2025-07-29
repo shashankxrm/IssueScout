@@ -1,7 +1,7 @@
 'use client';
 
 import { formatDistanceToNow } from "date-fns"
-import { Star, MessageSquare, Github, ExternalLink, BookmarkIcon, Bookmark, Clock } from "lucide-react"
+import { Star, MessageSquare, Github, ExternalLink, Bookmark, Clock } from "lucide-react"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -38,7 +38,6 @@ interface IssueCardProps {
 
 export function IssueCard({ issue, bookmarkedAt, viewedAt }: IssueCardProps) {
   const createdDate = new Date(issue.createdAt)
-  const lastActivityDate = new Date(issue.lastActivity)
   const { isBookmarked, toggleBookmark } = useBookmarks()
   const { isAuthenticated } = useAuth()
   const { trackView } = useRecentlyViewed()

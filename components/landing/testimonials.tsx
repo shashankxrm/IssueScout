@@ -38,7 +38,7 @@ export function Testimonials() {
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">What Developers Say</h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Join thousands of developers who've found their first open source contributions with IssueScout.
+            Join thousands of developers who&apos;ve found their first open source contributions with IssueScout.
           </p>
         </motion.div>
 

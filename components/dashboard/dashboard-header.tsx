@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button"
 import { Github} from "lucide-react"
-import { useState } from "react"
 import { useAuth } from "@/lib/auth"
 
 export function DashboardHeader() {

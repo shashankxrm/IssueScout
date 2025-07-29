@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import clientPromise from "@/lib/mongodb";
-import { ObjectId } from "mongodb";
 import { authOptions } from "@/lib/auth-options";
 
 interface Bookmark {
   userId: string;
   issueId: number;
-  issueData: any;
+  issueData: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user: session?.user || null,
     login,
     logout
-  }), [isAuthenticated, session?.user, router]);
+  }), [isAuthenticated, session?.user, login, logout]);
 
   return (
     <AuthContext.Provider value={value}>

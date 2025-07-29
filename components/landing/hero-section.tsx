@@ -66,7 +66,7 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="text-xl md:text-2xl text-muted-foreground max-w-3xl mb-10"
           >
-            IssueScout helps you explore curated 'Good First Issues' with rich UI, bookmarking, and personalized GitHub
+            IssueScout helps you explore curated &apos;Good First Issues&apos; with rich UI, bookmarking, and personalized GitHub
             syncing.
           </motion.p>
 

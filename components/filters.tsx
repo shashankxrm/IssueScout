@@ -52,7 +52,6 @@ export function Filters({
 }: FiltersProps) {
   const [languages, setLanguages] = useState<string[]>([]);
   const [labels, setLabels] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     try {
@@ -62,8 +61,6 @@ export function Filters({
       setLabels(popularLabels);
     } catch (error) {
       console.error('Error loading filters:', error);
-    } finally {
-      setLoading(false);
     }
   }, []);
 

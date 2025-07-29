@@ -8,7 +8,7 @@ export function EmptyState() {
         <FileSearch className="h-12 w-12 text-muted-foreground mb-4" data-testid="file-search-icon" />
         <h3 className="text-lg font-semibold">No issues found</h3>
         <p className="text-sm text-muted-foreground max-w-md mt-2">
-          Try adjusting your search or filter criteria to find what you're looking for.
+          Try adjusting your search or filter criteria to find what you&apos;re looking for.
         </p>
       </CardContent>
     </Card>

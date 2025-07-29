@@ -20,7 +20,7 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ account }) {
       try {
         if (account?.provider === "github") {
           return true;
