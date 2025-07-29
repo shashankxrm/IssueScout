@@ -24,7 +24,14 @@
     <a href="mailto:shashankreddy0608@gmail.com">Request Feature</a>
     <br />
     <br />
-<!--     <img src="https://github.com/shashankxrm/forkspy/actions/workflows/playwright.yml/badge.svg" alt="Playwright Tests" /> -->
+    <!-- CI/CD and Testing Badges -->
+    <img src="https://github.com/shashankxrm/IssueScout/actions/workflows/ci.yml/badge.svg" alt="CI Pipeline" />
+    <img src="https://github.com/shashankxrm/IssueScout/actions/workflows/cd.yml/badge.svg" alt="CD Pipeline" />
+    <img src="https://codecov.io/gh/shashankxrm/IssueScout/branch/main/graph/badge.svg" alt="Coverage" />
+    <br />
+    <img src="https://img.shields.io/badge/tests-41%20passing-brightgreen" alt="Test Count" />
+    <img src="https://img.shields.io/badge/test%20framework-vitest-green" alt="Test Framework" />
+    <img src="https://img.shields.io/badge/coverage-%3E70%25-brightgreen" alt="Coverage Threshold" />
   </p>
 </div>
 
@@ -117,30 +124,49 @@ To get a local copy follow these simple example steps.
 - Find contribution-ready tasks without repo-hunting.  
 - Build confidence and consistency in OSS involvement.
 
+## Testing
 
-<!-- TESTING 
-## Testing (Undergoing changes)
+IssueScout has a comprehensive test suite ensuring code quality and reliability across all components.
 
-ForkSpy has a comprehensive test suite using Playwright for end-to-end testing. Tests cover:
+### Test Statistics
+- **41 Tests** passing across all components
+- **70%+ Coverage** requirement enforced
+- **Zero tolerance** for failing tests in CI
 
-* Authentication flows
-* Dashboard functionality
-* Repository management
-* Error handling
+### Testing Stack
+- **[Vitest](https://vitest.dev/)** - Fast unit test runner
+- **[React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)** - Component testing utilities
+- **[jsdom](https://github.com/jsdom/jsdom)** - DOM environment for testing
+- **[MSW](https://mswjs.io/)** - API mocking for reliable tests
+- **[@testing-library/user-event](https://testing-library.com/docs/user-event/intro/)** - User interaction simulation
+
 
 ### Running Tests Locally
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
-# Run the tests
-npx playwright test
-```
+# Run all tests
+pnpm test
 
-### CI/CD
+# Run tests in watch mode (development)
+pnpm test:watch
 
-We use GitHub Actions for continuous integration and deployment:
+# Run tests with coverage report
+pnpm test:coverage
+
+# Run tests with UI (visual test runner)
+pnpm test:ui
+
+
+
+### 📚 Complete Testing Guide
+For comprehensive testing documentation, setup guides, and best practices, see our [Testing Guide](./docs/TESTING.md).
+
+### CI/CD Integration
+
+Tests are automatically run in our CI/CD pipeline:
 
 **CI Pipeline** (runs on every PR and push):
 - ✅ ESLint checking

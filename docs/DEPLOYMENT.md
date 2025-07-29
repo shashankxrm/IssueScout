@@ -84,6 +84,109 @@ Runs on pull requests:
 - 🔍 Deploy preview version
 - 💬 Comment with preview URL
 
+## Testing Infrastructure
+
+### Test Framework Configuration
+
+IssueScout uses **Vitest** as the primary testing framework with the following setup:
+
+```javascript
+// vitest.config.ts
+export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['__tests__/setup.ts'],
+    coverage: {
+      reporter: ['text', 'json', 'html', 'lcov'],
+      thresholds: {
+        global: {
+          statements: 70,
+          branches: 70,
+          functions: 70,
+          lines: 70
+        }
+      }
+    }
+  }
+})
+```
+
+### Coverage Reporting
+
+- **Local Coverage**: Generated in `coverage/` directory
+- **CI Coverage**: Uploaded to Codecov automatically
+- **Thresholds**: 70% minimum across all metrics
+- **Reports**: HTML, LCOV, JSON formats available
+
+### Test Categories
+
+#### Component Tests (41 tests total)
+1. **UI Components**: Header, Footer, Navigation
+2. **Interactive Elements**: Filters, Search, Bookmarks
+3. **Data Display**: Issue Cards, Issue Grid, Empty States
+4. **Theme System**: Dark/Light mode, Theme Provider
+5. **Authentication**: Login states, User dropdown
+
+#### Test Utilities
+- **Custom Render**: Pre-configured with providers
+- **Mock Data**: Realistic GitHub issue data
+- **Test Helpers**: Authentication mocks, API responses
+
+### Continuous Integration Testing
+
+#### Automated Test Execution
+```yaml
+# .github/workflows/ci.yml
+- name: Run tests
+  run: pnpm run test:coverage
+  
+- name: Upload coverage to Codecov  
+  uses: codecov/codecov-action@v4
+  with:
+    token: ${{ secrets.CODECOV_TOKEN }}
+    file: ./coverage/lcov.info
+```
+
+#### Quality Gates
+- ✅ All tests must pass
+- ✅ Coverage thresholds must be met
+- ✅ ESLint rules must pass
+- ✅ TypeScript compilation must succeed
+
+### Testing Best Practices
+
+1. **Test Behavior, Not Implementation**
+   ```typescript
+   // ✅ Good - tests user behavior
+   expect(screen.getByText('Sign In')).toBeInTheDocument()
+   
+   // ❌ Bad - tests implementation
+   expect(component.state.isLoggedIn).toBe(false)
+   ```
+
+2. **Use Descriptive Test Names**
+   ```typescript
+   it('displays bookmarked issues when user has bookmarks', () => {
+     // Test implementation
+   })
+   ```
+
+3. **Mock External Dependencies**
+   ```typescript
+   vi.mock('@/lib/github', () => ({
+     GitHubService: {
+       getIssues: vi.fn().mockResolvedValue(mockIssues)
+     }
+   }))
+   ```
+
+4. **Test Error States**
+   ```typescript
+   it('shows error message when API request fails', async () => {
+     // Test error handling
+   })
+   ```
+
 ## Troubleshooting
 
 ### "No existing credentials found" Error
