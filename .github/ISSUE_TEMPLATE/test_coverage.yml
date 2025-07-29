@@ -1,0 +1,89 @@
+name: Test Coverage Improvement
+description: Suggest tests to improve code coverage
+title: "[TESTS]: "
+labels: ["testing", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us improve test coverage! Use this template to suggest new tests or report missing test coverage.
+
+  - type: dropdown
+    id: test-type
+    attributes:
+      label: Test Type
+      description: What type of tests are needed?
+      options:
+        - Unit Tests
+        - Integration Tests
+        - Component Tests
+        - Hook Tests
+        - API Tests
+        - E2E Tests
+    validations:
+      required: true
+
+  - type: textarea
+    id: coverage-area
+    attributes:
+      label: Coverage Area
+      description: What specific file, component, or functionality needs testing?
+      placeholder: e.g., useIssues hook, GitHub service, dashboard components
+    validations:
+      required: true
+
+  - type: textarea
+    id: test-scenarios
+    attributes:
+      label: Test Scenarios
+      description: What scenarios should be tested?
+      placeholder: |
+        - Happy path testing
+        - Error handling
+        - Edge cases
+        - User interactions
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Based on the testing priority matrix
+      options:
+        - Critical (Core functionality)
+        - High (Important features)
+        - Medium (Nice to have)
+        - Low (Edge cases)
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-coverage
+    attributes:
+      label: Current Coverage Status
+      description: What is currently tested vs. what's missing?
+      placeholder: |
+        ✅ Currently tested:
+        - Basic rendering
+        
+        ❌ Missing tests:
+        - Error states
+        - User interactions
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I'm willing to write these tests
+        - label: I can help with test review
+        - label: I need guidance on testing approach
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true

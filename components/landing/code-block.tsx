@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 
 // Define syntax highlighting colors
-const syntaxColors = {
+const syntaxColors: Record<string, string> = {
     keyword: "text-purple-400",
     function: "text-blue-400",
     string: "text-green-400",

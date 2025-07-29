@@ -14,7 +14,7 @@ const pulseAnimation = {
     transition: { 
       duration: 2,
       repeat: Infinity,
-      repeatType: "reverse",
+      repeatType: "reverse" as const,
       ease: "easeInOut" 
     }
   }
@@ -28,7 +28,7 @@ interface FloatingCtaProps {
   /** The URL to navigate to when the button is clicked */
   buttonHref?: string
   /** When to show the CTA (scroll position in pixels) */
-  showAfterScroll?: number
+  showAfterScroll?: number | boolean
   /** Additional button props */
   buttonProps?: Omit<ButtonProps, 'children'>
   /** Optional custom button content */
@@ -49,7 +49,11 @@ export function FloatingCta({
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > showAfterScroll) {
+      const scrollThreshold = typeof showAfterScroll === 'boolean' 
+        ? (showAfterScroll ? 500 : 0) 
+        : showAfterScroll;
+      
+      if (window.scrollY > scrollThreshold) {
         setVisible(true)
       } else {
         setVisible(false)
