@@ -15,8 +15,7 @@
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "audit": "npm audit --audit-level=moderate",
-    "audit:fix": "npm audit fix",
-    "prepare": "husky install || true"
+    "audit:fix": "npm audit fix"
   },
   "dependencies": {
     "@auth/core": "^0.39.1",
